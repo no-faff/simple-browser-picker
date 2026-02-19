@@ -56,14 +56,30 @@ Full spec written by Opus lives at:
 
 ## Current state
 
-- Repo cloned from `no-faff/simple-browser-picker` ✓
-- `LICENSE`, `CLAUDE.md`, `README.md` created ✓
-- `.gitignore` — not yet (needs `dotnet new gitignore`)
-- Solution and project — not yet created
-- No code written yet
+- Repo, `.gitignore`, solution and project all created ✓
+- Full application built and compiles clean ✓
+- Smoke-tested with `dotnet run -- "https://example.com"` ✓
+- Placeholder icon in Assets/icon.ico ✓
 
-Next step: once .NET 8 SDK is installed, run `dotnet new gitignore` then follow
-the build order in the spec (§ "What to build first").
+**What's implemented:**
+- Browser detection (registry scan + Chromium/Firefox profiles)
+- URL parsing + SafeLinks/Google redirect unwrapping
+- Domain-based rules engine (auto-open without picker)
+- Picker window — borderless, multi-monitor centred, keyboard shortcuts 1–9
+- "Always use for [domain]" checkbox
+- Settings window — browsers tab, rules tab, about tab
+- First-run wizard
+- HKCU protocol registration / unregistration
+- Light/dark mode + Windows accent colour
+
+**Still to do / for Opus review:**
+- Real icon (placeholder blue square currently)
+- Polish pass on UI (fonts, spacing, animations)
+- Edge cases in profile detection (guest profiles, default profile only)
+- Keyboard navigation within picker
+- Start-a-new-Opus-chat for review
+
+Next step: start a new Opus chat in this folder for review.
 
 ## Key decisions
 
