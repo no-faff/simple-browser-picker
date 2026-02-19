@@ -6,6 +6,7 @@
          Converters
          ==================================================================== -->
     <conv:StringToVisibilityConverter x:Key="StringToVisConverter"/>
+    <conv:IndexToShortcutConverter    x:Key="IndexToShortcutConverter"/>
     <BooleanToVisibilityConverter     x:Key="BoolToVis"/>
 
     <!-- ====================================================================
@@ -79,6 +80,7 @@
         <Setter Property="Padding"      Value="14,7,14,7"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="Cursor"       Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -90,6 +92,10 @@
                                           VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bg" Property="Background"
+                                    Value="{DynamicResource HoverBrush}"/>
+                        </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Bg" Property="Background"
                                     Value="{DynamicResource HoverBrush}"/>
@@ -144,6 +150,8 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Bg"
                             Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="4"
                             Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>

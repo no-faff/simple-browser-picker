@@ -35,9 +35,8 @@ public partial class App : Application
 
             // Check for a matching rule — if found, launch immediately without showing the picker
             BrowserRule? rule = FindMatchingRule(domain);
-            if (rule is not null)
+            if (rule is not null && LaunchWithRule(rule, url))
             {
-                LaunchWithRule(rule, url);
                 Shutdown();
                 return;
             }
@@ -74,7 +73,11 @@ public partial class App : Application
         return null;
     }
 
-    private static void LaunchWithRule(BrowserRule rule, string url)
+    /// <summary>
+    /// Attempts to launch the browser specified by a rule.
+    /// Returns true on success, false on failure (caller should fall back to the picker).
+    /// </summary>
+    private static bool LaunchWithRule(BrowserRule rule, string url)
     {
         try
         {
@@ -86,10 +89,11 @@ public partial class App : Application
                                     : $"{rule.ProfileArgs} \"{url}\"",
                 UseShellExecute = true,
             });
+            return true;
         }
         catch
         {
-            // Fall through silently — the link is dropped, which is better than crashing
+            return false;
         }
     }
 

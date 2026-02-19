@@ -65,7 +65,8 @@ Full spec written by Opus lives at:
 - Browser detection (registry scan + Chromium/Firefox profiles)
 - URL parsing + SafeLinks/Google redirect unwrapping
 - Domain-based rules engine (auto-open without picker)
-- Picker window — borderless, multi-monitor centred, keyboard shortcuts 1–9
+- Picker window — borderless, multi-monitor centred, keyboard shortcuts 1–9,
+  arrow key/tab navigation with visual focus highlight
 - "Always use for [domain]" checkbox
 - Settings window — browsers tab, rules tab, about tab
 - First-run wizard
@@ -75,13 +76,7 @@ Full spec written by Opus lives at:
 **Still to do:**
 - Real icon — generate with a Python script (ask Sonnet). Multi-resolution .ico
   (16, 32, 48px). Replace `Assets/icon.ico`. Placeholder is currently a blue square.
-- `Properties/PublishProfiles/win-x64.pubxml` references `TrimmerRoots.xml` —
-  either create it or remove `<TrimmerRootDescriptors>` before publishing with trimming.
 - Polish pass on UI (fonts, spacing)
-- Edge cases in profile detection (guest profiles, single-default-profile Chrome)
-- Keyboard navigation within picker (tab/arrow keys)
-
-Next step: Opus review.
 
 ## Key decisions
 

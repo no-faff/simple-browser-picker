@@ -174,12 +174,17 @@ public class BrowserDetector
                 !profileEl.TryGetProperty("info_cache", out var infoCache))
                 return [];
 
-            var entries = new List<Browser>();
-            var icon = ExtractIcon(exePath);
-
+            // First pass: collect raw profile data, skipping ephemeral/internal profiles
+            var raw = new List<(string FolderName, string DisplayName)>();
             foreach (var profileEntry in infoCache.EnumerateObject())
             {
-                string folderName = profileEntry.Name; // e.g. "Default", "Profile 1"
+                string folderName = profileEntry.Name;
+
+                // Skip guest and system profiles — they're ephemeral or internal
+                if (folderName.StartsWith("Guest Profile", StringComparison.OrdinalIgnoreCase) ||
+                    folderName.Equals("System Profile", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
                 var info = profileEntry.Value;
 
                 string profileDisplayName = string.Empty;
@@ -193,24 +198,23 @@ public class BrowserDetector
                 if (string.IsNullOrWhiteSpace(profileDisplayName))
                     profileDisplayName = folderName;
 
-                string displayName = entries.Count == 0 && profileDisplayName == "Person 1"
-                    ? browserName   // single-profile user: just show browser name
-                    : $"{browserName} – {profileDisplayName}";
-
-                entries.Add(new Browser
-                {
-                    Name           = displayName,
-                    ExePath        = exePath,
-                    AdditionalArgs = $"--profile-directory=\"{folderName}\"",
-                    Icon           = icon,
-                });
+                raw.Add((folderName, profileDisplayName));
             }
 
-            // Single profile with default name → strip the suffix
-            if (entries.Count == 1)
-                entries[0].Name = browserName;
+            if (raw.Count == 0)
+                return [];
 
-            return entries;
+            // Second pass: build Browser entries with correct naming
+            var icon = ExtractIcon(exePath);
+            bool singleProfile = raw.Count == 1;
+
+            return raw.Select(p => new Browser
+            {
+                Name           = singleProfile ? browserName : $"{browserName} – {p.DisplayName}",
+                ExePath        = exePath,
+                AdditionalArgs = $"--profile-directory=\"{p.FolderName}\"",
+                Icon           = icon,
+            }).ToList();
         }
         catch
         {

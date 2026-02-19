@@ -1,0 +1,18 @@
+<linker>
+  <!-- Preserve WPF types referenced from XAML that the trimmer can't see statically -->
+  <assembly fullname="PresentationFramework">
+    <type fullname="System.Windows.Controls.*" preserve="all" />
+    <type fullname="System.Windows.Data.*" preserve="all" />
+    <type fullname="System.Windows.Documents.*" preserve="all" />
+    <type fullname="System.Windows.Media.*" preserve="all" />
+    <type fullname="System.Windows.Shapes.*" preserve="all" />
+  </assembly>
+  <assembly fullname="PresentationCore">
+    <type fullname="System.Windows.Media.*" preserve="all" />
+  </assembly>
+  <assembly fullname="SimpleBrowserPicker">
+    <type fullname="SimpleBrowserPicker.Converters.*" preserve="all" />
+    <type fullname="SimpleBrowserPicker.ViewModels.*" preserve="all" />
+    <type fullname="SimpleBrowserPicker.Views.*" preserve="all" />
+  </assembly>
+</linker>

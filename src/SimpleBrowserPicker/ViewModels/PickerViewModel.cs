@@ -34,8 +34,10 @@ public class PickerViewModel : ViewModelBase
         set => SetField(ref _alwaysUseChecked, value);
     }
 
-    public string DisplayUrl { get; }
-    public string UrlDomain  { get; }
+    public string DisplayUrl  { get; }
+    public string UrlDomain   { get; }
+    public string UrlScheme   { get; }
+    public string UrlSuffix   { get; }
 
     public string AlwaysUseLabel =>
         SelectedBrowser is null
@@ -59,6 +61,19 @@ public class PickerViewModel : ViewModelBase
 
         DisplayUrl = _url;
         UrlDomain  = _domain;
+
+        // Split URL into scheme, domain, and suffix for display emphasis
+        if (Uri.TryCreate(_url, UriKind.Absolute, out var uri))
+        {
+            UrlScheme = uri.Scheme + "://";
+            UrlSuffix = uri.PathAndQuery + uri.Fragment;
+            if (UrlSuffix == "/") UrlSuffix = string.Empty;
+        }
+        else
+        {
+            UrlScheme = string.Empty;
+            UrlSuffix = string.Empty;
+        }
 
         foreach (var b in browsers)
             Browsers.Add(b);
@@ -95,11 +110,7 @@ public class PickerViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            System.Windows.MessageBox.Show(
-                $"Could not launch {browser.Name}:\n{ex.Message}",
-                "Simple browser picker",
-                System.Windows.MessageBoxButton.OK,
-                System.Windows.MessageBoxImage.Warning);
+            ErrorRaised?.Invoke(this, $"Could not launch {browser.Name}:\n{ex.Message}");
             return;
         }
 
@@ -131,4 +142,5 @@ public class PickerViewModel : ViewModelBase
     }
 
     public event EventHandler? CloseRequested;
+    public event EventHandler<string>? ErrorRaised;
 }

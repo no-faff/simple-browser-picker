@@ -5,6 +5,7 @@ using SimpleBrowserPicker.ViewModels;
 using KeyEventArgs   = System.Windows.Input.KeyEventArgs;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
 using Button         = System.Windows.Controls.Button;
+using MessageBox     = System.Windows.MessageBox;
 using WinScreen      = System.Windows.Forms.Screen;
 
 namespace SimpleBrowserPicker.Views;
@@ -12,6 +13,7 @@ namespace SimpleBrowserPicker.Views;
 public partial class PickerWindow : Window
 {
     private readonly PickerViewModel _vm;
+    private bool _suppressDeactivateClose;
 
     public PickerWindow(PickerViewModel viewModel)
     {
@@ -20,10 +22,25 @@ public partial class PickerWindow : Window
         DataContext = _vm;
 
         _vm.CloseRequested += (_, _) => Close();
+        _vm.ErrorRaised += OnErrorRaised;
 
         Loaded += OnLoaded;
         KeyDown += OnKeyDown;
-        Deactivated += (_, _) => Close();
+        Deactivated += OnDeactivated;
+    }
+
+    private void OnErrorRaised(object? sender, string message)
+    {
+        _suppressDeactivateClose = true;
+        MessageBox.Show(message, "Simple browser picker",
+            MessageBoxButton.OK, MessageBoxImage.Warning);
+        _suppressDeactivateClose = false;
+    }
+
+    private void OnDeactivated(object? sender, EventArgs e)
+    {
+        if (!_suppressDeactivateClose)
+            Close();
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -42,6 +59,14 @@ public partial class PickerWindow : Window
         if (e.Key == Key.Escape)
         {
             Close();
+            e.Handled = true;
+            return;
+        }
+
+        // Arrow key navigation
+        if (e.Key == Key.Down || e.Key == Key.Up)
+        {
+            MoveFocus(e.Key == Key.Down ? FocusNavigationDirection.Next : FocusNavigationDirection.Previous);
             e.Handled = true;
             return;
         }
@@ -68,7 +93,45 @@ public partial class PickerWindow : Window
         }
     }
 
+    private void MoveFocus(FocusNavigationDirection direction)
+    {
+        if (Keyboard.FocusedElement is Button focused)
+        {
+            focused.MoveFocus(new TraversalRequest(direction));
+        }
+        else
+        {
+            // Nothing focused yet — focus the first browser button
+            FindFirstBrowserButton()?.Focus();
+        }
+    }
+
+    private Button? FindFirstBrowserButton()
+    {
+        return FindBrowserButton(RootBorder);
+    }
+
+    private static Button? FindBrowserButton(DependencyObject parent)
+    {
+        int count = System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent);
+        for (int i = 0; i < count; i++)
+        {
+            var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+            if (child is Button btn && btn.Tag is SimpleBrowserPicker.Models.Browser)
+                return btn;
+            var result = FindBrowserButton(child);
+            if (result is not null) return result;
+        }
+        return null;
+    }
+
     private void BrowserButton_MouseEnter(object sender, MouseEventArgs e)
+    {
+        if (sender is Button btn && btn.Tag is SimpleBrowserPicker.Models.Browser browser)
+            _vm.SelectedBrowser = browser;
+    }
+
+    private void BrowserButton_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
     {
         if (sender is Button btn && btn.Tag is SimpleBrowserPicker.Models.Browser browser)
             _vm.SelectedBrowser = browser;

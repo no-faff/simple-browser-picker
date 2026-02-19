@@ -23,17 +23,27 @@
 
         <StackPanel MinWidth="340" MaxWidth="480">
 
-            <!-- URL strip -->
+            <!-- URL strip — domain emphasised, rest muted -->
             <Border Style="{StaticResource UrlStripBorder}">
                 <TextBlock Style="{StaticResource UrlTextBlock}"
-                           Text="{Binding DisplayUrl}"
-                           ToolTip="{Binding DisplayUrl}"/>
+                           ToolTip="{Binding DisplayUrl}">
+                    <Run Text="{Binding UrlScheme, Mode=OneTime}"
+                         Foreground="{DynamicResource MutedBrush}"/><!--
+                 --><Run Text="{Binding UrlDomain, Mode=OneTime}"
+                         FontWeight="SemiBold"
+                         Foreground="{DynamicResource ForegroundBrush}"/><!--
+                 --><Run Text="{Binding UrlSuffix, Mode=OneTime}"
+                         Foreground="{DynamicResource MutedBrush}"/>
+                </TextBlock>
             </Border>
 
             <!-- Browser list -->
             <ItemsControl ItemsSource="{Binding Browsers}"
                           Focusable="False"
-                          Margin="8,4,8,4">
+                          Margin="8,4,8,4"
+                          AlternationCount="100"
+                          KeyboardNavigation.TabNavigation="Cycle"
+                          KeyboardNavigation.DirectionalNavigation="Cycle">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Button Style="{StaticResource BrowserButton}"
@@ -41,7 +51,8 @@
                                           RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                 CommandParameter="{Binding}"
                                 Tag="{Binding}"
-                                MouseEnter="BrowserButton_MouseEnter">
+                                MouseEnter="BrowserButton_MouseEnter"
+                                GotKeyboardFocus="BrowserButton_GotKeyboardFocus">
                             <StackPanel Orientation="Horizontal">
                                 <Image Source="{Binding Icon}"
                                        Width="24" Height="24"
@@ -50,11 +61,12 @@
                                 <TextBlock Text="{Binding Name}"
                                            VerticalAlignment="Center"
                                            Style="{StaticResource BrowserNameText}"/>
-                                <!-- Keyboard shortcut badge shown via converter/index -->
-                                <TextBlock x:Name="ShortcutBadge"
-                                           VerticalAlignment="Center"
+                                <TextBlock VerticalAlignment="Center"
                                            Margin="8,0,0,0"
-                                           Style="{StaticResource ShortcutBadgeText}"/>
+                                           Style="{StaticResource ShortcutBadgeText}"
+                                           Text="{Binding Path=(ItemsControl.AlternationIndex),
+                                                  RelativeSource={RelativeSource AncestorType=ContentPresenter},
+                                                  Converter={StaticResource IndexToShortcutConverter}}"/>
                             </StackPanel>
                         </Button>
                     </DataTemplate>

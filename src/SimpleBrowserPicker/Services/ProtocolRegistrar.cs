@@ -36,6 +36,7 @@ public class ProtocolRegistrar
 
         // ProgID / URL class
         SetValue(ClassesPath, null, $"{AppName} URL");
+        SetValue(ClassesPath, "URL Protocol", string.Empty);
         SetValue($@"{ClassesPath}\shell\open\command", null, command);
 
         // RegisteredApplications
