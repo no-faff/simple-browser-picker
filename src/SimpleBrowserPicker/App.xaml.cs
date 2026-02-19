@@ -1,13 +1,137 @@
-﻿using System.Configuration;
-using System.Data;
 using System.Windows;
+using Application = System.Windows.Application;
+using SimpleBrowserPicker.Models;
+using SimpleBrowserPicker.Services;
+using SimpleBrowserPicker.ViewModels;
+using SimpleBrowserPicker.Views;
 
 namespace SimpleBrowserPicker;
 
-/// <summary>
-/// Interaction logic for App.xaml
-/// </summary>
 public partial class App : Application
 {
-}
+    private ConfigService _configService = new();
+    private BrowserDetector _detector    = new();
+    private AppConfig _config            = new();
+    private List<Browser> _browsers      = new();
 
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        base.OnStartup(e);
+
+        // Apply Windows theme (light/dark + accent colour)
+        ThemeService.Apply(this);
+
+        _config   = _configService.Load();
+        _browsers = _detector.Detect();
+
+        string[] args = e.Args;
+
+        if (args.Length > 0)
+        {
+            // Launched with a URL
+            string rawUrl = args[0];
+            string url    = UrlParser.Unwrap(rawUrl);
+            string domain = UrlParser.ExtractDomain(url);
+
+            // Check for a matching rule — if found, launch immediately without showing the picker
+            BrowserRule? rule = FindMatchingRule(domain);
+            if (rule is not null)
+            {
+                LaunchWithRule(rule, url);
+                Shutdown();
+                return;
+            }
+
+            // No rule matched — show first-run wizard if needed, then the picker
+            if (!_config.SetupComplete)
+                RunFirstRunThenPicker(url);
+            else
+                ShowPicker(url);
+        }
+        else
+        {
+            // No URL argument — show settings (or first-run on very first launch)
+            if (!_config.SetupComplete)
+                ShowFirstRun();
+            else
+                ShowSettings();
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Rule matching
+    // -----------------------------------------------------------------------
+
+    private BrowserRule? FindMatchingRule(string domain)
+    {
+        if (string.IsNullOrEmpty(domain)) return null;
+
+        foreach (var rule in _config.Rules)
+        {
+            if (UrlParser.DomainMatches(domain, rule.Domain))
+                return rule;
+        }
+        return null;
+    }
+
+    private static void LaunchWithRule(BrowserRule rule, string url)
+    {
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName        = rule.BrowserExePath,
+                Arguments       = string.IsNullOrWhiteSpace(rule.ProfileArgs)
+                                    ? $"\"{url}\""
+                                    : $"{rule.ProfileArgs} \"{url}\"",
+                UseShellExecute = true,
+            });
+        }
+        catch
+        {
+            // Fall through silently — the link is dropped, which is better than crashing
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Window presentation
+    // -----------------------------------------------------------------------
+
+    private void ShowPicker(string url)
+    {
+        var vm     = new PickerViewModel(url, _browsers, _configService, _config);
+        var window = new PickerWindow(vm);
+        window.Show();
+    }
+
+    private void ShowSettings()
+    {
+        var vm     = new SettingsViewModel(_configService, _detector, _config, _browsers);
+        var window = new SettingsWindow(vm);
+        window.Show();
+    }
+
+    private void ShowFirstRun()
+    {
+        var vm     = new FirstRunViewModel(_configService, _config, _browsers);
+        var window = new FirstRunWindow(vm);
+        window.Closed += (_, _) =>
+        {
+            // After first-run completes, show settings
+            ShowSettings();
+        };
+        window.Show();
+    }
+
+    private void RunFirstRunThenPicker(string url)
+    {
+        var vm     = new FirstRunViewModel(_configService, _config, _browsers);
+        var window = new FirstRunWindow(vm);
+        window.Closed += (_, _) =>
+        {
+            _config = _configService.Load();
+            ShowPicker(url);
+        };
+        window.Show();
+    }
+}

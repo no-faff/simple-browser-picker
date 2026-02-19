@@ -12,6 +12,7 @@
     <Version>0.1.0</Version>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
 </Project>

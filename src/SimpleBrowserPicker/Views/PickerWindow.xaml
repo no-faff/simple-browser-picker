@@ -1,0 +1,74 @@
+<Window x:Class="SimpleBrowserPicker.Views.PickerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:SimpleBrowserPicker.ViewModels"
+        Title="Simple browser picker"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        ShowInTaskbar="False"
+        Topmost="True"
+        WindowStartupLocation="Manual">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+
+    <!-- Outer border provides shadow + rounded corners -->
+    <Border x:Name="RootBorder"
+            Style="{StaticResource PickerWindowBorder}"
+            MouseDown="RootBorder_MouseDown">
+
+        <StackPanel MinWidth="340" MaxWidth="480">
+
+            <!-- URL strip -->
+            <Border Style="{StaticResource UrlStripBorder}">
+                <TextBlock Style="{StaticResource UrlTextBlock}"
+                           Text="{Binding DisplayUrl}"
+                           ToolTip="{Binding DisplayUrl}"/>
+            </Border>
+
+            <!-- Browser list -->
+            <ItemsControl ItemsSource="{Binding Browsers}"
+                          Focusable="False"
+                          Margin="8,4,8,4">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Style="{StaticResource BrowserButton}"
+                                Command="{Binding DataContext.OpenCommand,
+                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                CommandParameter="{Binding}"
+                                Tag="{Binding}"
+                                MouseEnter="BrowserButton_MouseEnter">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="{Binding Icon}"
+                                       Width="24" Height="24"
+                                       Margin="0,0,10,0"
+                                       RenderOptions.BitmapScalingMode="HighQuality"/>
+                                <TextBlock Text="{Binding Name}"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource BrowserNameText}"/>
+                                <!-- Keyboard shortcut badge shown via converter/index -->
+                                <TextBlock x:Name="ShortcutBadge"
+                                           VerticalAlignment="Center"
+                                           Margin="8,0,0,0"
+                                           Style="{StaticResource ShortcutBadgeText}"/>
+                            </StackPanel>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- "Always use" checkbox -->
+            <Border Visibility="{Binding AlwaysUseLabelVisible, Converter={StaticResource BoolToVis}}"
+                    Margin="12,2,12,8">
+                <CheckBox IsChecked="{Binding AlwaysUseChecked, Mode=TwoWay}"
+                          Content="{Binding AlwaysUseLabel}"
+                          Style="{StaticResource AlwaysUseCheckBox}"/>
+            </Border>
+
+        </StackPanel>
+    </Border>
+</Window>
