@@ -72,14 +72,16 @@ Full spec written by Opus lives at:
 - HKCU protocol registration / unregistration
 - Light/dark mode + Windows accent colour
 
-**Still to do / for Opus review:**
-- Real icon (placeholder blue square currently)
-- Polish pass on UI (fonts, spacing, animations)
-- Edge cases in profile detection (guest profiles, default profile only)
-- Keyboard navigation within picker
-- Start-a-new-Opus-chat for review
+**Still to do:**
+- Real icon — generate with a Python script (ask Sonnet). Multi-resolution .ico
+  (16, 32, 48px). Replace `Assets/icon.ico`. Placeholder is currently a blue square.
+- `Properties/PublishProfiles/win-x64.pubxml` references `TrimmerRoots.xml` —
+  either create it or remove `<TrimmerRootDescriptors>` before publishing with trimming.
+- Polish pass on UI (fonts, spacing)
+- Edge cases in profile detection (guest profiles, single-default-profile Chrome)
+- Keyboard navigation within picker (tab/arrow keys)
 
-Next step: start a new Opus chat in this folder for review.
+Next step: Opus review.
 
 ## Key decisions
 
