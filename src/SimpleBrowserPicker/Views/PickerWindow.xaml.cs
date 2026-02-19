@@ -32,7 +32,7 @@ public partial class PickerWindow : Window
     private void OnErrorRaised(object? sender, string message)
     {
         _suppressDeactivateClose = true;
-        MessageBox.Show(message, "Simple browser picker",
+        MessageBox.Show(message, "Simple Browser Picker",
             MessageBoxButton.OK, MessageBoxImage.Warning);
         _suppressDeactivateClose = false;
     }

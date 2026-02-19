@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
 using SimpleBrowserPicker.Models;
@@ -10,8 +9,6 @@ public class FirstRunViewModel : ViewModelBase
 {
     private readonly ConfigService _configService;
     private AppConfig _appConfig;
-
-    public ObservableCollection<Browser> DetectedBrowsers { get; } = new();
 
     private string _statusMessage = string.Empty;
     public string StatusMessage
@@ -26,16 +23,10 @@ public class FirstRunViewModel : ViewModelBase
     /// <summary>Raised when the window should close (either path).</summary>
     public event EventHandler? CloseRequested;
 
-    public FirstRunViewModel(
-        ConfigService configService,
-        AppConfig appConfig,
-        List<Browser> detectedBrowsers)
+    public FirstRunViewModel(ConfigService configService, AppConfig appConfig)
     {
         _configService = configService;
         _appConfig     = appConfig;
-
-        foreach (var b in detectedBrowsers)
-            DetectedBrowsers.Add(b);
 
         SetAsDefaultCommand = new RelayCommand(SetAsDefault);
         SkipCommand         = new RelayCommand(Skip);
@@ -47,7 +38,7 @@ public class FirstRunViewModel : ViewModelBase
         string exePath = Process.GetCurrentProcess().MainModule!.FileName!;
         registrar.Register(exePath);
 
-        StatusMessage = "Select 'Simple browser picker' in the settings window that just opened.";
+        StatusMessage = "Select 'Simple Browser Picker' in the settings window that just opened.";
 
         Process.Start(new ProcessStartInfo
         {

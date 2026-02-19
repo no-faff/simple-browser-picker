@@ -1,6 +1,6 @@
-# Simple browser picker
+# Simple Browser Picker
 
-Part of the **No faff** suite of small Windows utilities (github.com/no-faff).
+Part of the **No Faff** suite of small Windows utilities (github.com/no-faff).
 
 ## What it does
 
@@ -16,7 +16,8 @@ auto-route domains to specific browsers.
 
 ## Brand / conventions
 
-- Sentence case throughout — no title case
+- Title case for the app name: "Simple Browser Picker"
+- Sentence case for UI labels and body text
 - British English — colour, organise, etc.
 - No Oxford comma
 
@@ -56,10 +57,9 @@ Full spec written by Opus lives at:
 
 ## Current state
 
-- Repo, `.gitignore`, solution and project all created ✓
 - Full application built and compiles clean ✓
-- Smoke-tested with `dotnet run -- "https://example.com"` ✓
-- Placeholder icon in Assets/icon.ico ✓
+- Multi-resolution icon ✓
+- Opus review pass complete ✓
 
 **What's implemented:**
 - Browser detection (registry scan + Chromium/Firefox profiles)
@@ -67,15 +67,14 @@ Full spec written by Opus lives at:
 - Domain-based rules engine (auto-open without picker)
 - Picker window — borderless, multi-monitor centred, keyboard shortcuts 1–9,
   arrow key/tab navigation with visual focus highlight
+- URL domain emphasis in picker (bold domain, muted scheme/path)
 - "Always use for [domain]" checkbox
 - Settings window — browsers tab, rules tab, about tab
-- First-run wizard
+- First-run wizard (explains link routing concept, no browser list)
 - HKCU protocol registration / unregistration
 - Light/dark mode + Windows accent colour
 
 **Still to do:**
-- Real icon — generate with a Python script (ask Sonnet). Multi-resolution .ico
-  (16, 32, 48px). Replace `Assets/icon.ico`. Placeholder is currently a blue square.
 - Polish pass on UI (fonts, spacing)
 
 ## Key decisions

@@ -34,13 +34,17 @@ public class BrowserDetector
         ["arc.exe"]     = @"Arc\User Data",
     };
 
-    // Known Firefox-based profile roots under %APPDATA%\Mozilla
-    private static readonly string[] FirefoxProfileRoots =
-    [
-        @"Mozilla\Firefox",
-        @"Zen Browser",
-        @"zen",
-    ];
+    // Known Firefox-based browser profile directories relative to %APPDATA%
+    // Each exe maps to one or more possible profile roots (checked in order)
+    private static readonly Dictionary<string, string[]> FirefoxDataDirs = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["firefox.exe"]         = [@"Mozilla\Firefox"],
+        ["floorp.exe"]          = ["Floorp"],
+        ["zen.exe"]             = ["zen", "Zen Browser"],
+        ["librewolf.exe"]       = ["librewolf"],
+        ["waterfox.exe"]        = ["Waterfox"],
+        ["mullvad-browser.exe"] = [@"Mullvad Browser"],
+    };
 
     private readonly string _localAppData =
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -78,9 +82,9 @@ public class BrowserDetector
             }
 
             // Try Firefox profile expansion
-            if (!addedProfiles)
+            if (!addedProfiles && FirefoxDataDirs.TryGetValue(exe, out string[]? profileRoots))
             {
-                var ffProfiles = ReadFirefoxProfiles(name, exePath);
+                var ffProfiles = ReadFirefoxProfiles(name, exePath, profileRoots);
                 if (ffProfiles.Count > 0)
                 {
                     browsers.AddRange(ffProfiles);
@@ -142,7 +146,11 @@ public class BrowserDetector
         return results.Select(kv => (kv.Value, kv.Key)).ToList();
     }
 
-    /// <summary>Extracts the exe path from a registry command string like "C:\foo\bar.exe" "%1"</summary>
+    /// <summary>
+    /// Extracts the exe path from a registry command string.
+    /// Handles both quoted ("C:\foo\bar.exe" "%1") and unquoted paths
+    /// with spaces (C:\Program Files\Google\Chrome\Application\chrome.exe "%1").
+    /// </summary>
     private static string ParseExePath(string command)
     {
         command = command.Trim();
@@ -152,7 +160,13 @@ public class BrowserDetector
             if (end > 1)
                 return command[1..end];
         }
-        // No quotes — take everything up to the first space
+
+        // No quotes — look for .exe and take everything up to and including it
+        int exePos = command.IndexOf(".exe", StringComparison.OrdinalIgnoreCase);
+        if (exePos > 0)
+            return command[..(exePos + 4)];
+
+        // Last resort — take everything up to the first space
         int space = command.IndexOf(' ');
         return space > 0 ? command[..space] : command;
     }
@@ -226,10 +240,10 @@ public class BrowserDetector
     // Firefox profiles
     // -----------------------------------------------------------------------
 
-    private List<Browser> ReadFirefoxProfiles(string browserName, string exePath)
+    private List<Browser> ReadFirefoxProfiles(string browserName, string exePath, string[] profileRoots)
     {
-        // Try each known profile root
-        foreach (string root in FirefoxProfileRoots)
+        // Try each profile root for this specific browser
+        foreach (string root in profileRoots)
         {
             string iniPath = Path.Combine(_appData, root, "profiles.ini");
             if (!File.Exists(iniPath)) continue;

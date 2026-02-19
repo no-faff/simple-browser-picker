@@ -3,13 +3,13 @@ using Microsoft.Win32;
 namespace SimpleBrowserPicker.Services;
 
 /// <summary>
-/// Registers and unregisters Simple browser picker as a browser in HKCU,
+/// Registers and unregisters Simple Browser Picker as a browser in HKCU,
 /// so it appears in Windows Settings → Default apps.
 /// No administrator privileges are required.
 /// </summary>
 public class ProtocolRegistrar
 {
-    private const string AppName       = "Simple browser picker";
+    private const string AppName       = "Simple Browser Picker";
     private const string AppDesc       = "Choose which browser opens each link";
     private const string RegAppName    = "SimpleBrowserPicker";
     private const string ProgId        = "SimpleBrowserPickerURL";

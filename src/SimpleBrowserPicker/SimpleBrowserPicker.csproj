@@ -6,8 +6,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <AssemblyTitle>Simple browser picker</AssemblyTitle>
-    <Product>Simple browser picker</Product>
+    <AssemblyTitle>Simple Browser Picker</AssemblyTitle>
+    <Product>Simple Browser Picker</Product>
     <Company>No faff</Company>
     <Version>0.1.0</Version>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>

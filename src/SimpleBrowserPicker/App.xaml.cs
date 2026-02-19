@@ -117,7 +117,7 @@ public partial class App : Application
 
     private void ShowFirstRun()
     {
-        var vm     = new FirstRunViewModel(_configService, _config, _browsers);
+        var vm     = new FirstRunViewModel(_configService, _config);
         var window = new FirstRunWindow(vm);
         window.Closed += (_, _) =>
         {
@@ -129,7 +129,7 @@ public partial class App : Application
 
     private void RunFirstRunThenPicker(string url)
     {
-        var vm     = new FirstRunViewModel(_configService, _config, _browsers);
+        var vm     = new FirstRunViewModel(_configService, _config);
         var window = new FirstRunWindow(vm);
         window.Closed += (_, _) =>
         {
