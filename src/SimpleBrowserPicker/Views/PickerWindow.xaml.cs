@@ -45,13 +45,34 @@ public partial class PickerWindow : Window
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        // Centre on the monitor that contains the mouse cursor
+        // Centre on the monitor that contains the mouse cursor.
+        // Screen.WorkingArea returns physical pixels; WPF Left/Top use DIPs.
+        // Convert using the DPI transform to avoid misplacement at >100% scaling.
         var screen = WinScreen.FromPoint(
             System.Windows.Forms.Cursor.Position);
         var wa = screen.WorkingArea;
 
-        Left = wa.Left + (wa.Width  - ActualWidth)  / 2;
-        Top  = wa.Top  + (wa.Height - ActualHeight) / 2;
+        var source = System.Windows.PresentationSource.FromVisual(this);
+        double scaleX = source!.CompositionTarget.TransformFromDevice.M11;
+        double scaleY = source!.CompositionTarget.TransformFromDevice.M22;
+
+        double waLeft   = wa.Left   * scaleX;
+        double waTop    = wa.Top    * scaleY;
+        double waWidth  = wa.Width  * scaleX;
+        double waHeight = wa.Height * scaleY;
+
+        // Cap the browser list so the window fits on screen. Subtract fixed
+        // overhead for URL strip (~40), checkbox (~35), padding/margin (~30)
+        // and drop-shadow bleed (~25) so the whole window stays within bounds.
+        BrowserScroller.MaxHeight = Math.Max(200, waHeight - 130);
+        MaxHeight = waHeight;
+
+        // Defer positioning until SizeToContent has recalculated ActualHeight
+        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Loaded, () =>
+        {
+            Left = waLeft + (waWidth  - ActualWidth)  / 2;
+            Top  = waTop  + (waHeight - ActualHeight) / 2;
+        });
     }
 
     private void OnKeyDown(object sender, KeyEventArgs e)
