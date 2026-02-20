@@ -150,9 +150,16 @@
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Domain:" VerticalAlignment="Center" Margin="0,4,8,4"/>
-                            <TextBox   Grid.Row="0" Grid.Column="1"
-                                       Text="{Binding NewRuleDomain, UpdateSourceTrigger=PropertyChanged}"
-                                       Margin="0,4"/>
+                            <Grid      Grid.Row="0" Grid.Column="1" Margin="0,4">
+                                <TextBox Text="{Binding NewRuleDomain, UpdateSourceTrigger=PropertyChanged}"
+                                         x:Name="DomainTextBox"/>
+                                <TextBlock Text="e.g. github.com or *.google.com"
+                                           IsHitTestVisible="False"
+                                           Foreground="{DynamicResource MutedBrush}"
+                                           VerticalAlignment="Center" Margin="6,0,0,0"
+                                           Visibility="{Binding Text, ElementName=DomainTextBox,
+                                               Converter={StaticResource EmptyToVisConverter}}"/>
+                            </Grid>
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Browser:" VerticalAlignment="Center" Margin="0,4,8,4"/>
                             <ComboBox  Grid.Row="1" Grid.Column="1"
