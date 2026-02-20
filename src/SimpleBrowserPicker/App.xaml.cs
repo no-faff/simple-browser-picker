@@ -41,7 +41,14 @@ public partial class App : Application
                 return;
             }
 
-            // No rule matched — show first-run wizard if needed, then the picker
+            // No rule matched — try the fallback browser
+            if (!string.IsNullOrEmpty(_config.FallbackBrowserExePath) && LaunchFallback(url))
+            {
+                Shutdown();
+                return;
+            }
+
+            // No fallback — show first-run wizard if needed, then the picker
             if (!_config.SetupComplete)
                 RunFirstRunThenPicker(url);
             else
@@ -71,6 +78,28 @@ public partial class App : Application
                 return rule;
         }
         return null;
+    }
+
+    private bool LaunchFallback(string url)
+    {
+        try
+        {
+            string args = string.IsNullOrWhiteSpace(_config.FallbackProfileArgs)
+                ? $"\"{url}\""
+                : $"{_config.FallbackProfileArgs} \"{url}\"";
+
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName        = _config.FallbackBrowserExePath!,
+                Arguments       = args,
+                UseShellExecute = true,
+            });
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     /// <summary>

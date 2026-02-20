@@ -34,6 +34,18 @@ public class FirstRunViewModel : ViewModelBase
 
     private void SetAsDefault()
     {
+        // Detect the current default browser before we replace it
+        if (string.IsNullOrEmpty(_appConfig.FallbackBrowserExePath))
+        {
+            string? previousDefault = ProtocolRegistrar.DetectCurrentDefaultBrowser();
+            if (!string.IsNullOrEmpty(previousDefault) && System.IO.File.Exists(previousDefault))
+            {
+                _appConfig.FallbackBrowserExePath = previousDefault;
+                _appConfig.FallbackBrowserName    = System.IO.Path.GetFileNameWithoutExtension(previousDefault);
+                _configService.Save(_appConfig);
+            }
+        }
+
         var registrar = new ProtocolRegistrar();
         string exePath = Process.GetCurrentProcess().MainModule!.FileName!;
         registrar.Register(exePath);

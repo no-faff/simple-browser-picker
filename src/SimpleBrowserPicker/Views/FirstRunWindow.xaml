@@ -14,15 +14,21 @@
                    Margin="0,0,0,16"/>
 
         <TextBlock TextWrapping="Wrap" LineHeight="22" Margin="0,0,0,10">
-            Simple Browser Picker is not a browser — it's a link router. When
-            you click a link anywhere on your computer, it pops up and lets you
-            choose which browser or profile opens it.
+            Simple Browser Picker silently routes links to the right browser or
+            profile. Your current default browser will keep handling most links —
+            you just add rules for domains that should open elsewhere.
         </TextBlock>
 
-        <TextBlock TextWrapping="Wrap" LineHeight="22" Margin="0,0,0,20">
-            For this to work, Windows needs to treat it as your default browser.
-            Click the button below, then select "Simple Browser Picker" in the
-            Windows settings page that opens.
+        <TextBlock TextWrapping="Wrap" LineHeight="22" Margin="0,0,0,10">
+            To get started, register as your default browser below. Your previous
+            default will be saved automatically as the fallback. Then open settings
+            to add rules like "github.com → Vivaldi – Work".
+        </TextBlock>
+
+        <TextBlock TextWrapping="Wrap" LineHeight="22" Margin="0,0,0,20"
+                   Foreground="{DynamicResource MutedBrush}">
+            You can change the fallback browser and manage rules at any time
+            from the settings window.
         </TextBlock>
 
         <!-- Set as default -->

@@ -59,6 +59,36 @@ public class SettingsViewModel : ViewModelBase
         set => SetField(ref _selectedRule, value);
     }
 
+    // New rule fields
+    private string _newRuleDomain = string.Empty;
+    public string NewRuleDomain
+    {
+        get => _newRuleDomain;
+        set => SetField(ref _newRuleDomain, value);
+    }
+
+    private Browser? _newRuleBrowser;
+    public Browser? NewRuleBrowser
+    {
+        get => _newRuleBrowser;
+        set => SetField(ref _newRuleBrowser, value);
+    }
+
+    // -----------------------------------------------------------------------
+    // Fallback browser
+    // -----------------------------------------------------------------------
+
+    private Browser? _fallbackBrowser;
+    public Browser? FallbackBrowser
+    {
+        get => _fallbackBrowser;
+        set
+        {
+            if (SetField(ref _fallbackBrowser, value))
+                SaveFallbackBrowser(value);
+        }
+    }
+
     // -----------------------------------------------------------------------
     // About tab
     // -----------------------------------------------------------------------
@@ -81,6 +111,7 @@ public class SettingsViewModel : ViewModelBase
     public ICommand RefreshBrowsersCommand  { get; }
     public ICommand AddCustomBrowserCommand  { get; }
     public ICommand RemoveBrowserCommand     { get; }
+    public ICommand AddRuleCommand           { get; }
     public ICommand DeleteRuleCommand        { get; }
     public ICommand RegisterCommand          { get; }
     public ICommand UnregisterCommand        { get; }
@@ -106,6 +137,9 @@ public class SettingsViewModel : ViewModelBase
                   !string.IsNullOrWhiteSpace(CustomBrowserExe));
         RemoveBrowserCommand     = new RelayCommand(RemoveBrowser,
             () => SelectedBrowser?.IsCustom == true);
+        AddRuleCommand           = new RelayCommand(AddRule,
+            () => !string.IsNullOrWhiteSpace(NewRuleDomain) &&
+                  NewRuleBrowser is not null);
         DeleteRuleCommand        = new RelayCommand(DeleteRule,
             () => SelectedRule is not null);
         RegisterCommand          = new RelayCommand(Register);
@@ -114,6 +148,7 @@ public class SettingsViewModel : ViewModelBase
 
         LoadBrowsers(detectedBrowsers);
         LoadRules();
+        LoadFallbackBrowser();
         RefreshRegistrationStatus();
     }
 
@@ -205,6 +240,36 @@ public class SettingsViewModel : ViewModelBase
             Rules.Add(r);
     }
 
+    private void AddRule()
+    {
+        if (string.IsNullOrWhiteSpace(NewRuleDomain) || NewRuleBrowser is null) return;
+
+        string domain = NewRuleDomain.Trim().ToLowerInvariant();
+
+        // Remove any existing rule for this domain
+        var existing = _appConfig.Rules.FirstOrDefault(r =>
+            string.Equals(r.Domain, domain, StringComparison.OrdinalIgnoreCase));
+        if (existing is not null)
+        {
+            _appConfig.Rules.Remove(existing);
+            Rules.Remove(existing);
+        }
+
+        var rule = new BrowserRule
+        {
+            Domain         = domain,
+            BrowserExePath = NewRuleBrowser.ExePath,
+            BrowserName    = NewRuleBrowser.Name,
+            ProfileArgs    = NewRuleBrowser.AdditionalArgs,
+        };
+        _appConfig.Rules.Add(rule);
+        _configService.Save(_appConfig);
+        Rules.Add(rule);
+
+        NewRuleDomain  = string.Empty;
+        NewRuleBrowser = null;
+    }
+
     private void DeleteRule()
     {
         if (SelectedRule is null) return;
@@ -213,6 +278,38 @@ public class SettingsViewModel : ViewModelBase
         _configService.Save(_appConfig);
         Rules.Remove(SelectedRule);
         SelectedRule = null;
+    }
+
+    // -----------------------------------------------------------------------
+    // Fallback browser
+    // -----------------------------------------------------------------------
+
+    private void LoadFallbackBrowser()
+    {
+        if (string.IsNullOrEmpty(_appConfig.FallbackBrowserExePath)) return;
+
+        // Find matching browser in the list
+        _fallbackBrowser = Browsers.FirstOrDefault(b =>
+            string.Equals(b.ExePath, _appConfig.FallbackBrowserExePath, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(b.AdditionalArgs, _appConfig.FallbackProfileArgs ?? string.Empty, StringComparison.OrdinalIgnoreCase));
+        OnPropertyChanged(nameof(FallbackBrowser));
+    }
+
+    private void SaveFallbackBrowser(Browser? browser)
+    {
+        if (browser is null)
+        {
+            _appConfig.FallbackBrowserExePath = null;
+            _appConfig.FallbackBrowserName    = null;
+            _appConfig.FallbackProfileArgs    = null;
+        }
+        else
+        {
+            _appConfig.FallbackBrowserExePath = browser.ExePath;
+            _appConfig.FallbackBrowserName    = browser.Name;
+            _appConfig.FallbackProfileArgs    = browser.AdditionalArgs;
+        }
+        _configService.Save(_appConfig);
     }
 
     // -----------------------------------------------------------------------

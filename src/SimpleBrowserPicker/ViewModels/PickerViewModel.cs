@@ -24,6 +24,8 @@ public class PickerViewModel : ViewModelBase
             SetField(ref _selectedBrowser, value);
             OnPropertyChanged(nameof(AlwaysUseLabel));
             OnPropertyChanged(nameof(AlwaysUseLabelVisible));
+            OnPropertyChanged(nameof(SetAsFallbackLabel));
+            OnPropertyChanged(nameof(ShowSetAsFallback));
         }
     }
 
@@ -45,6 +47,22 @@ public class PickerViewModel : ViewModelBase
             : $"Always use {SelectedBrowser.Name} for {_domain}";
 
     public bool AlwaysUseLabelVisible => SelectedBrowser is not null && !string.IsNullOrEmpty(_domain);
+
+    private bool _setAsFallbackChecked;
+    public bool SetAsFallbackChecked
+    {
+        get => _setAsFallbackChecked;
+        set => SetField(ref _setAsFallbackChecked, value);
+    }
+
+    public string SetAsFallbackLabel =>
+        SelectedBrowser is null
+            ? string.Empty
+            : $"Use {SelectedBrowser.Name} for all other links";
+
+    public bool ShowSetAsFallback =>
+        SelectedBrowser is not null &&
+        string.IsNullOrEmpty(_appConfig.FallbackBrowserExePath);
 
     /// <summary>Set to true when the picker should close.</summary>
     public bool ShouldClose { get; private set; }
@@ -97,6 +115,9 @@ public class PickerViewModel : ViewModelBase
         if (AlwaysUseChecked && !string.IsNullOrEmpty(_domain))
             SaveRule(browser);
 
+        if (SetAsFallbackChecked)
+            SaveFallback(browser);
+
         try
         {
             Process.Start(new ProcessStartInfo
@@ -138,6 +159,14 @@ public class PickerViewModel : ViewModelBase
             ProfileArgs   = browser.AdditionalArgs,
         });
 
+        _config.Save(_appConfig);
+    }
+
+    private void SaveFallback(Browser browser)
+    {
+        _appConfig.FallbackBrowserExePath = browser.ExePath;
+        _appConfig.FallbackBrowserName    = browser.Name;
+        _appConfig.FallbackProfileArgs    = browser.AdditionalArgs;
         _config.Save(_appConfig);
     }
 

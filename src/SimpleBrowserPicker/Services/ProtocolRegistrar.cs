@@ -63,6 +63,51 @@ public class ProtocolRegistrar
         return key != null;
     }
 
+    /// <summary>
+    /// Reads the current default browser's exe path from the registry.
+    /// Returns null if it cannot be determined.
+    /// </summary>
+    public static string? DetectCurrentDefaultBrowser()
+    {
+        try
+        {
+            // Read the ProgId for https from UserChoice
+            using RegistryKey? userChoice = Registry.CurrentUser.OpenSubKey(
+                @"SOFTWARE\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice");
+            string? progId = userChoice?.GetValue("ProgID") as string;
+            if (string.IsNullOrWhiteSpace(progId)) return null;
+
+            // Skip if it's already us
+            if (progId.Equals(ProgId, StringComparison.OrdinalIgnoreCase)) return null;
+
+            // Resolve ProgId → shell\open\command → exe path
+            using RegistryKey? commandKey = Registry.ClassesRoot.OpenSubKey($@"{progId}\shell\open\command");
+            string? command = commandKey?.GetValue(null) as string;
+            if (string.IsNullOrWhiteSpace(command)) return null;
+
+            return ParseExePath(command);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static string? ParseExePath(string command)
+    {
+        command = command.Trim();
+        if (command.StartsWith('"'))
+        {
+            int end = command.IndexOf('"', 1);
+            if (end > 1) return command[1..end];
+        }
+
+        int exePos = command.IndexOf(".exe", StringComparison.OrdinalIgnoreCase);
+        if (exePos > 0) return command[..(exePos + 4)];
+
+        return null;
+    }
+
     // -----------------------------------------------------------------------
     // Helpers
     // -----------------------------------------------------------------------

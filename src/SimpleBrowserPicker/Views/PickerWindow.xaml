@@ -82,9 +82,17 @@
 
             <!-- "Always use" checkbox -->
             <Border Visibility="{Binding AlwaysUseLabelVisible, Converter={StaticResource BoolToVis}}"
-                    Margin="12,2,12,8">
+                    Margin="12,2,12,4">
                 <CheckBox IsChecked="{Binding AlwaysUseChecked, Mode=TwoWay}"
                           Content="{Binding AlwaysUseLabel}"
+                          Style="{StaticResource AlwaysUseCheckBox}"/>
+            </Border>
+
+            <!-- "Set as fallback" checkbox — only shown when no fallback is configured -->
+            <Border Visibility="{Binding ShowSetAsFallback, Converter={StaticResource BoolToVis}}"
+                    Margin="12,2,12,8">
+                <CheckBox IsChecked="{Binding SetAsFallbackChecked, Mode=TwoWay}"
+                          Content="{Binding SetAsFallbackLabel}"
                           Style="{StaticResource AlwaysUseCheckBox}"/>
             </Border>
 

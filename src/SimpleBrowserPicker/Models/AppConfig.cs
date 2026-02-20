@@ -21,6 +21,21 @@ public class AppConfig
     /// Domain → browser routing rules.
     /// </summary>
     public List<BrowserRule> Rules { get; set; } = new();
+
+    /// <summary>
+    /// Exe path of the fallback browser used when no rule matches.
+    /// </summary>
+    public string? FallbackBrowserExePath { get; set; }
+
+    /// <summary>
+    /// Display name of the fallback browser (e.g. "Vivaldi – Personal").
+    /// </summary>
+    public string? FallbackBrowserName { get; set; }
+
+    /// <summary>
+    /// Profile arguments for the fallback browser, if any.
+    /// </summary>
+    public string? FallbackProfileArgs { get; set; }
 }
 
 /// <summary>
