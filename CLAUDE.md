@@ -98,40 +98,32 @@ dotnet run --project src/SimpleBrowserPicker -- "https://example.com"
 
 ## Current state (Feb 2026)
 
-Core rework done. UX polish pass complete. Commit `13ad6ea`.
+BP feature parity complete. Commit `edb20ed`.
 
-All three windows (picker, settings, first-run) are borderless with accent
-stripe, drop shadow, thin scrollbars and consistent dark theme. The app
-compiles clean. Light mode works (follows Windows theme setting).
+All three windows borderless with consistent dark/light theme. Light mode
+follows the Windows theme setting automatically.
 
-### Feature parity with BrowserPicker — work plan
+### BrowserPicker feature parity — all done
 
-Audited BP (website, Store page, screenshots) against our app. The following
-features need to be added to achieve full parity (and beyond). Items are
-grouped by priority. Skip items 11 (custom icon paths) and 13 (collapse).
+1. ✅ **Open tab** — address bar, clipboard paste, browser list for manual URL opening
+2. ✅ **Redirect check** — picker shows "unwrapped from redirect" for SafeLinks/Google
+3. ✅ **Security check** — Google Transparency Report button on Open tab
+4. ✅ **Config export/import** — buttons in About tab
+5. ✅ **Browser editing** — select a browser to edit name, path, args; saved as overrides
+6. ✅ **Reordering** — up/down buttons for browsers and rules
+7. ✅ **Filter/search** — filter boxes on Browsers and Rules tabs
+8. ✅ **Rule exceptions** — add rule with no browser = always show picker
+9. ✅ **SharePoint/Office** — .xlsx/.docx/.pptx URLs open in desktop Office apps
+10. ✅ **"Always ask" mode** — toggle in Rules tab
+12. ✅ **Suspend rules** — temporarily ignore all rules
 
-**High priority — a BP user would miss these:**
-1. Address bar / paste URL — manual URL entry + clipboard button
-2. Redirect check visibility — show unwrapped URL, let user verify
-3. Security check — check URL safety before opening
-4. Config export/import — backup and restore rules/config
-5. Browser editing in settings — edit name, path, args of detected browsers
+Skipped: 11 (custom icon paths), 13 (collapse/expand) — not needed.
 
-**Medium priority — nice to have:**
-6. Drag-and-drop reordering of browsers and rules
-7. Filter/search in browser and rule lists
-8. Rule exceptions — "skip rules for this pattern" entries
-9. SharePoint/Office document opening — open .xlsx etc. in desktop apps
-10. "Always ask" mode toggle — picker for every link vs silent fallback
-
-**Lower priority — niche:**
-12. Temporarily suspend rules — pause all rules, show picker for everything
-
-**Rule matching — design decision:**
-BP uses substring matching ("www.google" matches anywhere in URL). This is
-flexible but dangerous. Our approach: domain matching with wildcards as
-primary, with optional path matching (github.com/gist/*) and regex for
-power users. Evaluate in order, first match wins.
+### Still to do
+- End-to-end testing with user
+- Translations (deferred)
+- Drag-and-drop reordering (up/down buttons work; full DnD is v2)
+- Path-based rule matching (github.com/gist/*) and regex — v2
 
 ### Design philosophy
 
