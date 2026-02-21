@@ -4,14 +4,9 @@ Part of the **No Faff** suite of small Windows utilities (github.com/no-faff).
 
 ## What it does
 
-A silent link router. Registers as your default browser, then transparently
-routes links to the right browser/profile based on rules. Most links open
-instantly in your default browser with zero interruption. Rules let you send
-specific domains to specific browsers or browser profiles.
-
-The picker popup is **not** the main interaction — it's an optional fallback
-for when no rule matches and no default is set, or when the user explicitly
-wants to choose.
+A browser picker and silent link router. Registers as your default browser,
+then either shows a picker popup or silently routes links to the right
+browser/profile based on rules — user's choice.
 
 ## Why it exists — competitive landscape
 
@@ -31,17 +26,24 @@ Sonnet and Opus researched alternatives and found gaps worth filling:
 2. **Single exe, no runtime, no installer** — self-contained .NET 8. Others
    need .NET 9 runtime, .NET Framework 4, or are Electron/paid.
 3. **SafeLinks/redirect unwrapping** — only Longmore's and Switchbar do this.
-4. **Silent by default** — not a "pick every time" popup machine.
+4. **Better rule matching** — domain-based with wildcards and optional
+   path/regex support. BP uses substring matching which is error-prone.
 
 ## Core interaction model
 
-1. **Default browser** — user sets one during first run. All links with no
-   matching rule open here silently. Zero popups.
-2. **Rules** — domain → browser/profile mappings. Also silent.
-3. **Picker** — only appears when deliberately invoked or when no default is
-   set. Optional "always pick" mode exists but is off by default.
-4. **"Always use" checkbox** — in the picker, lets you create a rule on the
-   spot so you never see the picker for that domain again.
+Two modes, user-configurable:
+
+1. **"Always ask" mode** (like BrowserPicker) — picker appears for every
+   link that doesn't match a rule. No fallback browser.
+2. **"Use fallback" mode** — a default browser catches everything that
+   doesn't match a rule. Silent. The picker only appears if no fallback
+   is set or if the user explicitly wants to choose.
+
+Either way:
+- **Rules** route specific domains/patterns to specific browsers silently.
+- **"Remember my choice" checkbox** in the picker creates a rule on the
+  spot so you never see the picker for that domain again.
+- **Fallback checkbox** in the picker lets you set/change the fallback.
 
 ## Tech stack
 
@@ -96,26 +98,42 @@ dotnet run --project src/SimpleBrowserPicker -- "https://example.com"
 
 ## Current state (Feb 2026)
 
-Core rework done. UX polish pass complete. Commit `b3a1d87`.
+Core rework done. UX polish pass complete. Commit `13ad6ea`.
 
 All three windows (picker, settings, first-run) are borderless with accent
 stripe, drop shadow, thin scrollbars and consistent dark theme. The app
-compiles clean but hasn't been end-to-end tested yet (registration → link
-opens → rule fires → fallback fires). That's the next task.
+compiles clean. Light mode works (follows Windows theme setting).
 
-### UX polish — completed items
+### Feature parity with BrowserPicker — work plan
 
-1. **End-to-end testing** — still to do with user.
-2. **Settings rules tab** — DONE. Placeholder text, cards, breathing room.
-3. **Rule editing** — DONE. Select → tweak → add (replaces by domain).
-4. **Fallback dropdown names** — no code fix needed (BrowserDetector reads
-   `shortcut_name`/`name` from Local State).
-5. **Visual confirmation on rule add** — DONE. Selects the new rule.
-6. **Fallback change from picker** — DONE. Checkbox always visible, label
-   shows current default name.
-7. **Wildcard hint** — DONE. Placeholder text on domain field.
+Audited BP (website, Store page, screenshots) against our app. The following
+features need to be added to achieve full parity (and beyond). Items are
+grouped by priority. Skip items 11 (custom icon paths) and 13 (collapse).
 
-### Design philosophy (for future Opus sessions)
+**High priority — a BP user would miss these:**
+1. Address bar / paste URL — manual URL entry + clipboard button
+2. Redirect check visibility — show unwrapped URL, let user verify
+3. Security check — check URL safety before opening
+4. Config export/import — backup and restore rules/config
+5. Browser editing in settings — edit name, path, args of detected browsers
+
+**Medium priority — nice to have:**
+6. Drag-and-drop reordering of browsers and rules
+7. Filter/search in browser and rule lists
+8. Rule exceptions — "skip rules for this pattern" entries
+9. SharePoint/Office document opening — open .xlsx etc. in desktop apps
+10. "Always ask" mode toggle — picker for every link vs silent fallback
+
+**Lower priority — niche:**
+12. Temporarily suspend rules — pause all rules, show picker for everything
+
+**Rule matching — design decision:**
+BP uses substring matching ("www.google" matches anywhere in URL). This is
+flexible but dangerous. Our approach: domain matching with wildcards as
+primary, with optional path matching (github.com/gist/*) and regex for
+power users. Evaluate in order, first match wins.
+
+### Design philosophy
 
 This app should feel like BrowserPicker but better in every way a user would
 notice. The bar is not "does the code work" but "would a BP user switch to
@@ -123,8 +141,9 @@ this and never look back". That means:
 - Every BP feature must exist and work at least as well
 - Profile detection (our killer feature) must be obviously better
 - The settings UI must be at least as clear as BP's, ideally clearer
-- Zero-config happy path: install → register → previous browser becomes
-  fallback → done. Rules are gravy.
+- Both "always ask" and "silent fallback" modes work well
+- UI feels like Upscayl/Stacher/Vibe — integrated dark design, not
+  "Windows with a dark coat of paint"
 
 ## Known WPF + WinForms issues
 
