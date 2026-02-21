@@ -24,6 +24,17 @@ public partial class App : Application
         _config   = _configService.Load();
         _browsers = _detector.Detect();
 
+        // Apply user overrides (renamed browsers, custom args)
+        foreach (var b in _browsers)
+        {
+            var ov = _config.BrowserOverrides.FirstOrDefault(o =>
+                string.Equals(o.ExePath, b.ExePath, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(o.OriginalArgs ?? "", b.AdditionalArgs ?? "", StringComparison.OrdinalIgnoreCase));
+            if (ov is null) continue;
+            if (ov.NameOverride is not null) b.Name = ov.NameOverride;
+            if (ov.ArgsOverride is not null) b.AdditionalArgs = ov.ArgsOverride;
+        }
+
         string[] args = e.Args;
 
         if (args.Length > 0)
@@ -34,7 +45,7 @@ public partial class App : Application
             string domain = UrlParser.ExtractDomain(url);
 
             // Check for a matching rule — if found, launch immediately without showing the picker
-            BrowserRule? rule = FindMatchingRule(domain);
+            BrowserRule? rule = _config.SuspendRules ? null : FindMatchingRule(domain);
             if (rule is not null && LaunchWithRule(rule, url))
             {
                 Shutdown();

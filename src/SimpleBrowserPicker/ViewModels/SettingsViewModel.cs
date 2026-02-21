@@ -49,7 +49,42 @@ public class SettingsViewModel : ViewModelBase
     public Browser? SelectedBrowser
     {
         get => _selectedBrowser;
-        set => SetField(ref _selectedBrowser, value);
+        set
+        {
+            if (SetField(ref _selectedBrowser, value))
+            {
+                OnPropertyChanged(nameof(HasSelectedBrowser));
+                if (value is not null)
+                {
+                    EditBrowserName = value.Name;
+                    EditBrowserPath = value.ExePath;
+                    EditBrowserArgs = value.AdditionalArgs;
+                }
+            }
+        }
+    }
+
+    public bool HasSelectedBrowser => SelectedBrowser is not null;
+
+    private string _editBrowserName = string.Empty;
+    public string EditBrowserName
+    {
+        get => _editBrowserName;
+        set => SetField(ref _editBrowserName, value);
+    }
+
+    private string _editBrowserPath = string.Empty;
+    public string EditBrowserPath
+    {
+        get => _editBrowserPath;
+        set => SetField(ref _editBrowserPath, value);
+    }
+
+    private string _editBrowserArgs = string.Empty;
+    public string EditBrowserArgs
+    {
+        get => _editBrowserArgs;
+        set => SetField(ref _editBrowserArgs, value);
     }
 
     // Custom browser fields
@@ -135,6 +170,20 @@ public class SettingsViewModel : ViewModelBase
 
     public bool ShowFallbackSection => !AlwaysAsk;
 
+    private bool _suspendRules;
+    public bool SuspendRules
+    {
+        get => _suspendRules;
+        set
+        {
+            if (SetField(ref _suspendRules, value))
+            {
+                _appConfig.SuspendRules = value;
+                _configService.Save(_appConfig);
+            }
+        }
+    }
+
     private Browser? _fallbackBrowser;
     public Browser? FallbackBrowser
     {
@@ -173,6 +222,7 @@ public class SettingsViewModel : ViewModelBase
     public ICommand RegisterCommand          { get; }
     public ICommand UnregisterCommand        { get; }
     public ICommand BrowseExeCommand         { get; }
+    public ICommand SaveBrowserEditCommand   { get; }
     public ICommand ExportConfigCommand      { get; }
     public ICommand ImportConfigCommand      { get; }
     public ICommand OpenInBrowserCommand     { get; }
@@ -205,13 +255,16 @@ public class SettingsViewModel : ViewModelBase
         RegisterCommand          = new RelayCommand(Register);
         UnregisterCommand        = new RelayCommand(Unregister);
         BrowseExeCommand         = new RelayCommand(BrowseExe);
+        SaveBrowserEditCommand   = new RelayCommand(SaveBrowserEdit,
+            () => SelectedBrowser is not null);
         ExportConfigCommand      = new RelayCommand(ExportConfig);
         ImportConfigCommand      = new RelayCommand(ImportConfig);
         OpenInBrowserCommand     = new RelayCommand<Browser?>(OpenInBrowser);
 
         Rules.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasNoRules));
 
-        _alwaysAsk = appConfig.AlwaysAsk;
+        _alwaysAsk    = appConfig.AlwaysAsk;
+        _suspendRules = appConfig.SuspendRules;
 
         LoadBrowsers(detectedBrowsers);
         LoadRules();
@@ -227,7 +280,10 @@ public class SettingsViewModel : ViewModelBase
     {
         Browsers.Clear();
         foreach (var b in detected)
+        {
+            ApplyOverride(b);
             Browsers.Add(b);
+        }
 
         foreach (var custom in _appConfig.CustomBrowsers)
         {
@@ -240,6 +296,16 @@ public class SettingsViewModel : ViewModelBase
                 Icon           = BrowserDetector.ExtractIcon(custom.ExePath),
             });
         }
+    }
+
+    private void ApplyOverride(Browser browser)
+    {
+        var ov = _appConfig.BrowserOverrides.FirstOrDefault(o =>
+            string.Equals(o.ExePath, browser.ExePath, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(o.OriginalArgs ?? "", browser.AdditionalArgs ?? "", StringComparison.OrdinalIgnoreCase));
+        if (ov is null) return;
+        if (ov.NameOverride is not null) browser.Name = ov.NameOverride;
+        if (ov.ArgsOverride is not null) browser.AdditionalArgs = ov.ArgsOverride;
     }
 
     private void RefreshBrowsers()
@@ -283,6 +349,49 @@ public class SettingsViewModel : ViewModelBase
         _configService.Save(_appConfig);
         Browsers.Remove(SelectedBrowser);
         SelectedBrowser = null;
+    }
+
+    private void SaveBrowserEdit()
+    {
+        if (SelectedBrowser is null) return;
+
+        string newName = EditBrowserName.Trim();
+        string newArgs = EditBrowserArgs.Trim();
+
+        // Update the in-memory browser object
+        SelectedBrowser.Name           = newName;
+        SelectedBrowser.AdditionalArgs = newArgs;
+
+        // Save an override in config so changes persist across restarts
+        var existing = _appConfig.BrowserOverrides.FirstOrDefault(o =>
+            string.Equals(o.ExePath, SelectedBrowser.ExePath, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(o.OriginalArgs, SelectedBrowser.AdditionalArgs, StringComparison.OrdinalIgnoreCase));
+
+        if (existing is not null)
+        {
+            existing.NameOverride = newName;
+            existing.ArgsOverride = newArgs;
+        }
+        else
+        {
+            _appConfig.BrowserOverrides.Add(new BrowserOverride
+            {
+                ExePath       = SelectedBrowser.ExePath,
+                OriginalArgs  = SelectedBrowser.AdditionalArgs,
+                NameOverride  = newName,
+                ArgsOverride  = newArgs,
+            });
+        }
+        _configService.Save(_appConfig);
+
+        // Refresh the list to show the updated name
+        int idx = Browsers.IndexOf(SelectedBrowser);
+        if (idx >= 0)
+        {
+            Browsers.RemoveAt(idx);
+            Browsers.Insert(idx, SelectedBrowser);
+            SelectedBrowser = Browsers[idx];
+        }
     }
 
     private void BrowseExe()
