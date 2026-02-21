@@ -247,9 +247,14 @@ public class SettingsViewModel : ViewModelBase
     public ICommand UnregisterCommand        { get; }
     public ICommand BrowseExeCommand         { get; }
     public ICommand SaveBrowserEditCommand   { get; }
+    public ICommand MoveBrowserUpCommand     { get; }
+    public ICommand MoveBrowserDownCommand   { get; }
+    public ICommand MoveRuleUpCommand        { get; }
+    public ICommand MoveRuleDownCommand      { get; }
     public ICommand ExportConfigCommand      { get; }
     public ICommand ImportConfigCommand      { get; }
     public ICommand OpenInBrowserCommand     { get; }
+    public ICommand SecurityCheckCommand     { get; }
 
     // -----------------------------------------------------------------------
     // Constructor
@@ -280,9 +285,19 @@ public class SettingsViewModel : ViewModelBase
         BrowseExeCommand         = new RelayCommand(BrowseExe);
         SaveBrowserEditCommand   = new RelayCommand(SaveBrowserEdit,
             () => SelectedBrowser is not null);
+        MoveBrowserUpCommand     = new RelayCommand(() => MoveItem(Browsers, SelectedBrowser, -1),
+            () => SelectedBrowser is not null && Browsers.IndexOf(SelectedBrowser) > 0);
+        MoveBrowserDownCommand   = new RelayCommand(() => MoveItem(Browsers, SelectedBrowser, +1),
+            () => SelectedBrowser is not null && Browsers.IndexOf(SelectedBrowser) < Browsers.Count - 1);
+        MoveRuleUpCommand        = new RelayCommand(() => MoveRule(SelectedRule, -1),
+            () => SelectedRule is not null && Rules.IndexOf(SelectedRule) > 0);
+        MoveRuleDownCommand      = new RelayCommand(() => MoveRule(SelectedRule, +1),
+            () => SelectedRule is not null && Rules.IndexOf(SelectedRule) < Rules.Count - 1);
         ExportConfigCommand      = new RelayCommand(ExportConfig);
         ImportConfigCommand      = new RelayCommand(ImportConfig);
         OpenInBrowserCommand     = new RelayCommand<Browser?>(OpenInBrowser);
+        SecurityCheckCommand     = new RelayCommand(SecurityCheck,
+            () => !string.IsNullOrWhiteSpace(OpenUrl));
 
         Rules.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasNoRules));
 
@@ -390,6 +405,31 @@ public class SettingsViewModel : ViewModelBase
         _configService.Save(_appConfig);
         Browsers.Remove(SelectedBrowser);
         SelectedBrowser = null;
+    }
+
+    private static void MoveItem<T>(ObservableCollection<T> collection, T? item, int direction) where T : class
+    {
+        if (item is null) return;
+        int idx = collection.IndexOf(item);
+        int newIdx = idx + direction;
+        if (newIdx < 0 || newIdx >= collection.Count) return;
+        collection.Move(idx, newIdx);
+    }
+
+    private void MoveRule(BrowserRule? rule, int direction)
+    {
+        if (rule is null) return;
+        int idx = Rules.IndexOf(rule);
+        int newIdx = idx + direction;
+        if (newIdx < 0 || newIdx >= Rules.Count) return;
+
+        Rules.Move(idx, newIdx);
+
+        // Sync the config list order
+        _appConfig.Rules.Clear();
+        foreach (var r in Rules)
+            _appConfig.Rules.Add(r);
+        _configService.Save(_appConfig);
     }
 
     private void SaveBrowserEdit()
@@ -586,6 +626,24 @@ public class SettingsViewModel : ViewModelBase
                 "Simple Browser Picker", System.Windows.MessageBoxButton.OK,
                 System.Windows.MessageBoxImage.Warning);
         }
+    }
+
+    private void SecurityCheck()
+    {
+        string url = Services.UrlParser.Unwrap(OpenUrl?.Trim() ?? "");
+        if (string.IsNullOrWhiteSpace(url)) return;
+
+        string encoded = Uri.EscapeDataString(url);
+        string checkUrl = $"https://transparencyreport.google.com/safe-browsing/search?url={encoded}";
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName        = checkUrl,
+                UseShellExecute = true,
+            });
+        }
+        catch { }
     }
 
     // -----------------------------------------------------------------------

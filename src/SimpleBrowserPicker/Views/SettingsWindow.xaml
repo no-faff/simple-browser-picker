@@ -119,6 +119,16 @@
                                     </Grid>
                                 </Border>
 
+                                <!-- Action buttons -->
+                                <StackPanel Orientation="Horizontal" Margin="4,4,0,4">
+                                    <Button Content="Security check"
+                                            Command="{Binding SecurityCheckCommand}"
+                                            Style="{StaticResource SecondaryButton}"
+                                            Margin="0,0,6,0" Padding="10,5"
+                                            FontSize="12"
+                                            ToolTip="Open Google's transparency report for this URL"/>
+                                </StackPanel>
+
                                 <!-- Redirect info (shows when URL was unwrapped) -->
                                 <TextBlock Visibility="{Binding ShowRedirectInfo,
                                                Converter={StaticResource BoolToVis}}"
@@ -263,6 +273,12 @@
 
                                 <!-- Action buttons -->
                                 <StackPanel Orientation="Horizontal" Margin="0,8,0,0" HorizontalAlignment="Right">
+                                    <Button Content="↑" Command="{Binding MoveBrowserUpCommand}"
+                                            Style="{StaticResource SecondaryButton}" Padding="8,4"
+                                            ToolTip="Move up" Margin="0,0,4,0"/>
+                                    <Button Content="↓" Command="{Binding MoveBrowserDownCommand}"
+                                            Style="{StaticResource SecondaryButton}" Padding="8,4"
+                                            ToolTip="Move down" Margin="0,0,8,0"/>
                                     <Button Content="Refresh" Command="{Binding RefreshBrowsersCommand}"
                                             Style="{StaticResource SecondaryButton}"/>
                                 </StackPanel>
@@ -410,9 +426,16 @@
                                     </Grid>
                                 </Border>
 
-                                <Button Content="Delete rule" Command="{Binding DeleteRuleCommand}"
-                                        HorizontalAlignment="Right" Margin="0,8,0,0"
-                                        Style="{StaticResource SecondaryButton}"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0" HorizontalAlignment="Right">
+                                    <Button Content="↑" Command="{Binding MoveRuleUpCommand}"
+                                            Style="{StaticResource SecondaryButton}" Padding="8,4"
+                                            ToolTip="Move up (higher priority)" Margin="0,0,4,0"/>
+                                    <Button Content="↓" Command="{Binding MoveRuleDownCommand}"
+                                            Style="{StaticResource SecondaryButton}" Padding="8,4"
+                                            ToolTip="Move down (lower priority)" Margin="0,0,8,0"/>
+                                    <Button Content="Delete rule" Command="{Binding DeleteRuleCommand}"
+                                            Style="{StaticResource SecondaryButton}"/>
+                                </StackPanel>
 
                                 <!-- Add rule card -->
                                 <TextBlock Text="ADD RULE"

@@ -44,6 +44,23 @@ public partial class App : Application
             string url    = UrlParser.Unwrap(rawUrl);
             string domain = UrlParser.ExtractDomain(url);
 
+            // Check for Office document URL — open in desktop app if applicable
+            string? officeUri = UrlParser.GetOfficeProtocolUri(url);
+            if (officeUri is not null)
+            {
+                try
+                {
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName        = officeUri,
+                        UseShellExecute = true,
+                    });
+                    Shutdown();
+                    return;
+                }
+                catch { } // Fall through to normal routing if Office app not found
+            }
+
             // Check for a matching rule — if found, launch immediately without showing the picker
             BrowserRule? rule = _config.SuspendRules ? null : FindMatchingRule(domain);
             if (rule is not null)

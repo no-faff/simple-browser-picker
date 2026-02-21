@@ -51,6 +51,30 @@ public static class UrlParser
     }
 
     /// <summary>
+    /// Returns the Office protocol URI if the URL points to a known Office
+    /// file type (e.g. ms-excel:ofe|u|...), or null if not applicable.
+    /// This lets SharePoint documents open directly in desktop Office apps.
+    /// </summary>
+    public static string? GetOfficeProtocolUri(string url)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
+            return null;
+
+        string path = uri.AbsolutePath.ToLowerInvariant();
+        string? protocol = null;
+
+        if (path.EndsWith(".xlsx") || path.EndsWith(".xls") || path.EndsWith(".xlsm"))
+            protocol = "ms-excel";
+        else if (path.EndsWith(".docx") || path.EndsWith(".doc") || path.EndsWith(".docm"))
+            protocol = "ms-word";
+        else if (path.EndsWith(".pptx") || path.EndsWith(".ppt") || path.EndsWith(".pptm"))
+            protocol = "ms-powerpoint";
+
+        if (protocol is null) return null;
+        return $"{protocol}:ofe|u|{url}";
+    }
+
+    /// <summary>
     /// Checks whether a URL's domain matches a rule pattern.
     ///
     /// Rules:
