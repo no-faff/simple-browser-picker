@@ -46,10 +46,12 @@ public class PickerViewModel : ViewModelBase
         set => SetField(ref _setAsFallbackChecked, value);
     }
 
-    public string SetAsFallbackLabel => "Use as my default for all sites";
+    public string SetAsFallbackLabel =>
+        string.IsNullOrEmpty(_appConfig.FallbackBrowserName)
+            ? "Use as my default for all sites"
+            : $"Change my default (currently {_appConfig.FallbackBrowserName})";
 
-    public bool ShowSetAsFallback =>
-        string.IsNullOrEmpty(_appConfig.FallbackBrowserExePath);
+    public bool ShowSetAsFallback => true;
 
     /// <summary>Set to true when the picker should close.</summary>
     public bool ShouldClose { get; private set; }

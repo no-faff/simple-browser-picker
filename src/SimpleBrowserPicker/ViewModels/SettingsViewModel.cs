@@ -52,11 +52,23 @@ public class SettingsViewModel : ViewModelBase
 
     public ObservableCollection<BrowserRule> Rules { get; } = new();
 
+    public bool HasNoRules => Rules.Count == 0;
+
     private BrowserRule? _selectedRule;
     public BrowserRule? SelectedRule
     {
         get => _selectedRule;
-        set => SetField(ref _selectedRule, value);
+        set
+        {
+            if (SetField(ref _selectedRule, value) && value is not null)
+            {
+                // Pre-populate the add form so editing is select → tweak → add
+                NewRuleDomain  = value.Domain;
+                NewRuleBrowser = Browsers.FirstOrDefault(b =>
+                    string.Equals(b.ExePath, value.BrowserExePath, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(b.AdditionalArgs ?? "", value.ProfileArgs ?? "", StringComparison.OrdinalIgnoreCase));
+            }
+        }
     }
 
     // New rule fields
@@ -145,6 +157,8 @@ public class SettingsViewModel : ViewModelBase
         RegisterCommand          = new RelayCommand(Register);
         UnregisterCommand        = new RelayCommand(Unregister);
         BrowseExeCommand         = new RelayCommand(BrowseExe);
+
+        Rules.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasNoRules));
 
         LoadBrowsers(detectedBrowsers);
         LoadRules();
@@ -268,6 +282,11 @@ public class SettingsViewModel : ViewModelBase
 
         NewRuleDomain  = string.Empty;
         NewRuleBrowser = null;
+
+        // Select the new rule so the user sees confirmation.
+        // Done after clearing the form so the setter doesn't re-populate.
+        _selectedRule = rule;
+        OnPropertyChanged(nameof(SelectedRule));
     }
 
     private void DeleteRule()

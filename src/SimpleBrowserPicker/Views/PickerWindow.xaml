@@ -90,7 +90,7 @@
                               Style="{StaticResource AlwaysUseCheckBox}"/>
                     <TextBlock Style="{StaticResource InfoHint}"
                                ToolTipService.InitialShowDelay="150"
-                               ToolTip="Tick this, then click a browser. All links will go to that browser silently unless you've set a rule for a specific site."
+                               ToolTip="Tick this, then click a browser. All links will go there silently unless a rule sends them elsewhere."
                                MouseLeftButtonDown="InfoHint_Click"/>
                 </StackPanel>
             </StackPanel>

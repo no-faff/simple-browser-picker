@@ -8,7 +8,7 @@
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
-        ResizeMode="CanResizeWithGrip">
+        ResizeMode="CanResize">
 
     <!-- Outer margin gives space for the drop shadow -->
     <Border Margin="10"
@@ -201,26 +201,40 @@
                                            Foreground="{DynamicResource MutedBrush}"
                                            Margin="4,0,0,6"/>
                                 <Border Style="{StaticResource CardBorder}">
-                                    <ListBox ItemsSource="{Binding Rules}"
-                                             SelectedItem="{Binding SelectedRule}"
-                                             BorderThickness="0"
-                                             Background="Transparent"
-                                             MaxHeight="160">
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid Margin="4,3">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="180"/>
-                                                        <ColumnDefinition Width="16"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" Text="{Binding Domain}" FontFamily="Consolas"/>
-                                                    <TextBlock Grid.Column="1" Text="→" HorizontalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="2" Text="{Binding BrowserName}"/>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                    </ListBox>
+                                    <Grid>
+                                        <!-- Empty state -->
+                                        <TextBlock Text="No rules yet — add one below"
+                                                   Foreground="{DynamicResource MutedBrush}"
+                                                   FontSize="12" FontStyle="Italic"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,8"
+                                                   Visibility="{Binding HasNoRules,
+                                                       Converter={StaticResource BoolToVis}}"/>
+                                        <ListBox ItemsSource="{Binding Rules}"
+                                                 SelectedItem="{Binding SelectedRule}"
+                                                 BorderThickness="0"
+                                                 Background="Transparent"
+                                                 MaxHeight="160">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Margin="4,3">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="180"/>
+                                                            <ColumnDefinition Width="20"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="{Binding Domain}"
+                                                                   FontFamily="Consolas" FontSize="12.5"/>
+                                                        <TextBlock Grid.Column="1" Text="→"
+                                                                   HorizontalAlignment="Center"
+                                                                   Foreground="{DynamicResource AccentBrush}"/>
+                                                        <TextBlock Grid.Column="2" Text="{Binding BrowserName}"/>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </Grid>
                                 </Border>
 
                                 <Button Content="Delete rule" Command="{Binding DeleteRuleCommand}"
@@ -283,15 +297,19 @@
 
                                 <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
                                     <StackPanel>
-                                        <TextBlock Text="Simple Browser Picker" FontSize="18" FontWeight="SemiBold"
-                                                   Margin="0,0,0,8"/>
-                                        <TextBlock Margin="0,0,0,6">
+                                        <TextBlock FontSize="20" FontWeight="SemiBold"
+                                                   Margin="0,0,0,4">
+                                            <Run Text="Simple Browser Picker"/>
+                                        </TextBlock>
+                                        <TextBlock Foreground="{DynamicResource MutedBrush}"
+                                                   FontSize="12" Margin="0,0,0,12">
                                             <Run Text="Version "/>
                                             <Run Text="{Binding AppVersion, Mode=OneWay}"/>
+                                            <Run Text=" · Part of the"/>
+                                            <Run Text=" No Faff " FontWeight="SemiBold"/>
+                                            <Run Text="suite"/>
                                         </TextBlock>
-                                        <TextBlock Text="Part of the No Faff suite of small Windows utilities."
-                                                   Margin="0,0,0,6"/>
-                                        <TextBlock>
+                                        <TextBlock FontSize="12">
                                             <Hyperlink NavigateUri="https://github.com/no-faff/simple-browser-picker"
                                                        RequestNavigate="Hyperlink_RequestNavigate">
                                                 github.com/no-faff/simple-browser-picker
@@ -300,9 +318,16 @@
                                     </StackPanel>
                                 </Border>
 
+                                <!-- Registration -->
+                                <TextBlock Text="DEFAULT BROWSER"
+                                           FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MutedBrush}"
+                                           Margin="4,0,0,6"/>
                                 <Border Style="{StaticResource CardBorder}">
                                     <StackPanel>
-                                        <TextBlock Text="{Binding RegistrationStatus}" FontStyle="Italic"
+                                        <TextBlock Text="{Binding RegistrationStatus}"
+                                                   Foreground="{DynamicResource MutedBrush}"
+                                                   FontSize="12"
                                                    Margin="0,0,0,10"/>
                                         <StackPanel Orientation="Horizontal">
                                             <Button Content="Register as default browser"

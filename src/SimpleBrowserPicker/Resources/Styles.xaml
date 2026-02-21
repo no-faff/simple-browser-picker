@@ -586,6 +586,26 @@
     </Style>
 
     <!-- ====================================================================
+         Hyperlink — uses accent colour, no underline until hover
+         ==================================================================== -->
+    <Style TargetType="Hyperlink">
+        <Setter Property="Foreground"          Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="TextDecorations"     Value="{x:Null}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="TextDecorations" Value="Underline"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- ====================================================================
+         Resize grip — subtle dots in the corner
+         ==================================================================== -->
+    <Style TargetType="ResizeGrip">
+        <Setter Property="Visibility" Value="Collapsed"/>
+    </Style>
+
+    <!-- ====================================================================
          Pill tab — RadioButton styled as a pill for settings title bar
          ==================================================================== -->
     <Style x:Key="PillTab" TargetType="RadioButton">
@@ -608,6 +628,7 @@
                         <Trigger Property="IsChecked" Value="True">
                             <Setter Property="Foreground"
                                     Value="{DynamicResource ForegroundBrush}"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
                             <Setter TargetName="Bg" Property="Background"
                                     Value="{DynamicResource HoverBrush}"/>
                         </Trigger>
@@ -633,14 +654,17 @@
     <!-- ====================================================================
          Minimal scrollbar for the picker — thin, rounded, fades on hover
          ==================================================================== -->
-    <Style x:Key="PickerScrollBarThumb" TargetType="Thumb">
+    <!-- ====================================================================
+         Thin scrollbar — used globally, thin track, rounded thumb
+         ==================================================================== -->
+    <Style x:Key="ThinScrollBarThumb" TargetType="Thumb">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Thumb">
                     <Border x:Name="ThumbBorder"
                             Background="{DynamicResource MutedBrush}"
                             Opacity="0.35"
-                            CornerRadius="1.5"
+                            CornerRadius="2"
                             Margin="0,2"/>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -655,21 +679,55 @@
         </Setter>
     </Style>
 
-    <Style x:Key="PickerScrollBar" TargetType="ScrollBar">
-        <Setter Property="Width" Value="3"/>
-        <Setter Property="MinWidth" Value="3"/>
+    <!-- Named key kept for picker's explicit reference -->
+    <Style x:Key="PickerScrollBarThumb" TargetType="Thumb"
+           BasedOn="{StaticResource ThinScrollBarThumb}"/>
+
+    <Style x:Key="ThinScrollBar" TargetType="ScrollBar">
+        <Setter Property="Width" Value="4"/>
+        <Setter Property="MinWidth" Value="4"/>
         <Setter Property="Margin" Value="0,0,2,0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ScrollBar">
                     <Track x:Name="PART_Track" IsDirectionReversed="True">
                         <Track.Thumb>
-                            <Thumb Style="{StaticResource PickerScrollBarThumb}"/>
+                            <Thumb Style="{StaticResource ThinScrollBarThumb}"/>
                         </Track.Thumb>
                     </Track>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style x:Key="PickerScrollBar" TargetType="ScrollBar"
+           BasedOn="{StaticResource ThinScrollBar}"/>
+
+    <!-- Global vertical scrollbar override — all ScrollViewers get thin bars -->
+    <Style TargetType="ScrollBar">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Track x:Name="PART_Track" IsDirectionReversed="True">
+                        <Track.Thumb>
+                            <Thumb Style="{StaticResource ThinScrollBarThumb}"/>
+                        </Track.Thumb>
+                    </Track>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Vertical">
+                <Setter Property="Width" Value="4"/>
+                <Setter Property="MinWidth" Value="4"/>
+                <Setter Property="Margin" Value="0,0,2,0"/>
+            </Trigger>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Height" Value="4"/>
+                <Setter Property="MinHeight" Value="4"/>
+                <Setter Property="Margin" Value="0,0,0,2"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
 </ResourceDictionary>

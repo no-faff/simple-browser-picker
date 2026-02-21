@@ -1,7 +1,9 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Navigation;
 using SimpleBrowserPicker.ViewModels;
 
@@ -12,11 +14,44 @@ namespace SimpleBrowserPicker.Views;
 
 public partial class SettingsWindow : Window
 {
+    private const int WM_NCHITTEST = 0x0084;
+    private const int BORDER_WIDTH = 6; // px resize-grab zone
+
     public SettingsWindow(SettingsViewModel viewModel)
     {
         InitializeComponent();
         DataContext = viewModel;
         KeyDown += SettingsWindow_KeyDown;
+        SourceInitialized += (_, _) =>
+        {
+            var source = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+            source?.AddHook(WndProc);
+        };
+    }
+
+    private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (msg == WM_NCHITTEST)
+        {
+            var point = PointFromScreen(new System.Windows.Point(
+                (short)(lParam.ToInt64() & 0xFFFF),
+                (short)((lParam.ToInt64() >> 16) & 0xFFFF)));
+            int b = BORDER_WIDTH;
+            bool left   = point.X < b;
+            bool right  = point.X > ActualWidth - b;
+            bool top    = point.Y < b;
+            bool bottom = point.Y > ActualHeight - b;
+
+            if (top && left)         { handled = true; return 13; } // HTTOPLEFT
+            if (top && right)        { handled = true; return 14; } // HTTOPRIGHT
+            if (bottom && left)      { handled = true; return 16; } // HTBOTTOMLEFT
+            if (bottom && right)     { handled = true; return 17; } // HTBOTTOMRIGHT
+            if (left)                { handled = true; return 10; } // HTLEFT
+            if (right)               { handled = true; return 11; } // HTRIGHT
+            if (top)                 { handled = true; return 12; } // HTTOP
+            if (bottom)              { handled = true; return 15; } // HTBOTTOM
+        }
+        return IntPtr.Zero;
     }
 
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
