@@ -79,15 +79,22 @@ public partial class SettingsWindow : Window
         // Guard: MainTabs may not be initialised yet during XAML loading
         if (MainTabs == null) return;
 
-        if (sender == TabBrowsers)      MainTabs.SelectedIndex = 0;
-        else if (sender == TabRules)    MainTabs.SelectedIndex = 1;
-        else if (sender == TabAbout)    MainTabs.SelectedIndex = 2;
+        if (sender == TabOpen)            MainTabs.SelectedIndex = 0;
+        else if (sender == TabBrowsers)  MainTabs.SelectedIndex = 1;
+        else if (sender == TabRules)     MainTabs.SelectedIndex = 2;
+        else if (sender == TabAbout)     MainTabs.SelectedIndex = 3;
     }
 
     private void SettingsWindow_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Escape)
             Close();
+    }
+
+    private void PasteClipboard_Click(object sender, RoutedEventArgs e)
+    {
+        if (System.Windows.Clipboard.ContainsText())
+            OpenUrlTextBox.Text = System.Windows.Clipboard.GetText().Trim();
     }
 
     private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)

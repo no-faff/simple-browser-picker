@@ -46,9 +46,13 @@
 
                         <!-- Pill tabs — centred -->
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <RadioButton x:Name="TabBrowsers" Content="Browsers"
+                            <RadioButton x:Name="TabOpen" Content="Open"
                                          Style="{StaticResource PillTab}"
                                          IsChecked="True"
+                                         Checked="PillTab_Checked"/>
+                            <RadioButton x:Name="TabBrowsers" Content="Browsers"
+                                         Style="{StaticResource PillTab}"
+                                         Margin="4,0,0,0"
                                          Checked="PillTab_Checked"/>
                             <RadioButton x:Name="TabRules" Content="Rules"
                                          Style="{StaticResource PillTab}"
@@ -75,6 +79,86 @@
                             Background="Transparent"
                             BorderThickness="0"
                             Padding="0">
+
+                    <!-- ========================================================
+                         Open tab — paste a URL and pick a browser
+                         ======================================================== -->
+                    <TabItem Header="Open" Visibility="Collapsed">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Padding="20,0,20,20">
+                            <StackPanel>
+
+                                <TextBlock Text="Open a web page by clicking a browser"
+                                           FontSize="14" FontWeight="SemiBold"
+                                           Margin="0,0,0,12"/>
+
+                                <!-- Address bar -->
+                                <TextBlock Text="ADDRESS"
+                                           FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MutedBrush}"
+                                           Margin="4,0,0,6"/>
+                                <Border Style="{StaticResource CardBorder}" Margin="0,0,0,4">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox x:Name="OpenUrlTextBox"
+                                                 Text="{Binding OpenUrl, UpdateSourceTrigger=PropertyChanged}"
+                                                 FontFamily="Consolas" FontSize="12.5"
+                                                 VerticalAlignment="Center"/>
+                                        <Button Grid.Column="1" ToolTip="Paste from clipboard"
+                                                Style="{StaticResource SecondaryButton}"
+                                                Margin="8,0,0,0" Padding="8,5"
+                                                Click="PasteClipboard_Click">
+                                            <Path Data="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"
+                                                  Fill="{DynamicResource ForegroundBrush}"
+                                                  Stretch="Uniform" Width="14" Height="14"/>
+                                        </Button>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Redirect info (shows when URL was unwrapped) -->
+                                <TextBlock Visibility="{Binding ShowRedirectInfo,
+                                               Converter={StaticResource BoolToVis}}"
+                                           Margin="4,0,0,8"
+                                           FontSize="11.5">
+                                    <Run Text="↳ Redirects to "
+                                         Foreground="{DynamicResource MutedBrush}"/>
+                                    <Run Text="{Binding UnwrappedUrl, Mode=OneWay}"
+                                         Foreground="{DynamicResource AccentBrush}"/>
+                                </TextBlock>
+
+                                <!-- Browser list -->
+                                <TextBlock Text="BROWSERS"
+                                           FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MutedBrush}"
+                                           Margin="4,8,0,6"/>
+                                <Border Style="{StaticResource CardBorder}">
+                                    <ItemsControl ItemsSource="{Binding Browsers}" Focusable="False">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Button Style="{StaticResource BrowserButton}"
+                                                        Command="{Binding DataContext.OpenInBrowserCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Image Source="{Binding Icon}"
+                                                               Width="22" Height="22"
+                                                               Margin="0,0,10,0"
+                                                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                        <TextBlock Text="{Binding Name}"
+                                                                   VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
 
                     <!-- ========================================================
                          Browsers tab
@@ -180,18 +264,28 @@
                                       Padding="20,0,20,20">
                             <StackPanel>
 
-                                <!-- Fallback browser card -->
-                                <TextBlock Text="FALLBACK BROWSER"
+                                <!-- Behaviour card -->
+                                <TextBlock Text="WHEN NO RULE MATCHES"
                                            FontSize="11" FontWeight="SemiBold"
                                            Foreground="{DynamicResource MutedBrush}"
                                            Margin="4,0,0,6"/>
                                 <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
                                     <StackPanel>
-                                        <TextBlock TextWrapping="Wrap" Margin="0,0,0,8"
-                                                   Text="Links that don't match any rule open in this browser silently."/>
-                                        <ComboBox ItemsSource="{Binding Browsers}"
-                                                  SelectedItem="{Binding FallbackBrowser}"
-                                                  DisplayMemberPath="Name"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                            <CheckBox IsChecked="{Binding AlwaysAsk}"
+                                                      Content="Always show the picker"
+                                                      Style="{StaticResource AlwaysUseCheckBox}"/>
+                                        </StackPanel>
+                                        <StackPanel Visibility="{Binding ShowFallbackSection,
+                                                        Converter={StaticResource BoolToVis}}">
+                                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,8"
+                                                       Foreground="{DynamicResource MutedBrush}"
+                                                       FontSize="12"
+                                                       Text="Unmatched links open silently in this browser:"/>
+                                            <ComboBox ItemsSource="{Binding Browsers}"
+                                                      SelectedItem="{Binding FallbackBrowser}"
+                                                      DisplayMemberPath="Name"/>
+                                        </StackPanel>
                                     </StackPanel>
                                 </Border>
 
@@ -323,7 +417,7 @@
                                            FontSize="11" FontWeight="SemiBold"
                                            Foreground="{DynamicResource MutedBrush}"
                                            Margin="4,0,0,6"/>
-                                <Border Style="{StaticResource CardBorder}">
+                                <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
                                     <StackPanel>
                                         <TextBlock Text="{Binding RegistrationStatus}"
                                                    Foreground="{DynamicResource MutedBrush}"
@@ -335,6 +429,30 @@
                                                     Margin="0,0,8,0"/>
                                             <Button Content="Unregister"
                                                     Command="{Binding UnregisterCommand}"
+                                                    Style="{StaticResource SecondaryButton}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Config backup -->
+                                <TextBlock Text="CONFIGURATION"
+                                           FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MutedBrush}"
+                                           Margin="4,0,0,6"/>
+                                <Border Style="{StaticResource CardBorder}">
+                                    <StackPanel>
+                                        <TextBlock TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource MutedBrush}"
+                                                   FontSize="12"
+                                                   Margin="0,0,0,10"
+                                                   Text="Export your rules and settings to a file, or import from a previous backup."/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="Export"
+                                                    Command="{Binding ExportConfigCommand}"
+                                                    Style="{StaticResource SecondaryButton}"
+                                                    Margin="0,0,8,0"/>
+                                            <Button Content="Import"
+                                                    Command="{Binding ImportConfigCommand}"
                                                     Style="{StaticResource SecondaryButton}"/>
                                         </StackPanel>
                                     </StackPanel>

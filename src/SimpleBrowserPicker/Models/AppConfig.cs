@@ -12,6 +12,13 @@ public class AppConfig
     public bool SetupComplete { get; set; }
 
     /// <summary>
+    /// When true, the picker appears for every link that doesn't match a
+    /// rule — the fallback browser is ignored. When false, unmatched links
+    /// open silently in the fallback browser (if set).
+    /// </summary>
+    public bool AlwaysAsk { get; set; }
+
+    /// <summary>
     /// Manually added custom browser entries. Auto-detected browsers are not
     /// persisted here — they are re-scanned at startup and cached in memory.
     /// </summary>

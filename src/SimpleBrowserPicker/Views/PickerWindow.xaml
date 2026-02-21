@@ -69,6 +69,15 @@
                 </DockPanel>
             </Border>
 
+            <!-- Redirect info — shown when SafeLinks/redirect was unwrapped -->
+            <TextBlock Visibility="{Binding WasRedirected, Converter={StaticResource BoolToVis}}"
+                       Margin="16,6,16,0" FontSize="11"
+                       TextTrimming="CharacterEllipsis"
+                       ToolTip="{Binding RawUrl}">
+                <Run Text="↳ Unwrapped from redirect"
+                     Foreground="{DynamicResource MutedBrush}"/>
+            </TextBlock>
+
             <!-- Checkboxes — above the list so they're always visible -->
             <StackPanel Margin="16,10,16,6">
                 <StackPanel Orientation="Horizontal"

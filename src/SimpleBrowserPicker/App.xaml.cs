@@ -41,8 +41,10 @@ public partial class App : Application
                 return;
             }
 
-            // No rule matched — try the fallback browser
-            if (!string.IsNullOrEmpty(_config.FallbackBrowserExePath) && LaunchFallback(url))
+            // No rule matched — try the fallback browser (unless "always ask" is on)
+            if (!_config.AlwaysAsk &&
+                !string.IsNullOrEmpty(_config.FallbackBrowserExePath) &&
+                LaunchFallback(url))
             {
                 Shutdown();
                 return;

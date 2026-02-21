@@ -12,6 +12,34 @@ public class SettingsViewModel : ViewModelBase
     private AppConfig _appConfig;
 
     // -----------------------------------------------------------------------
+    // Open tab
+    // -----------------------------------------------------------------------
+
+    private string _openUrl = string.Empty;
+    public string OpenUrl
+    {
+        get => _openUrl;
+        set
+        {
+            if (SetField(ref _openUrl, value))
+            {
+                string unwrapped = Services.UrlParser.Unwrap(value?.Trim() ?? "");
+                _unwrappedUrl = unwrapped;
+                OnPropertyChanged(nameof(UnwrappedUrl));
+                OnPropertyChanged(nameof(ShowRedirectInfo));
+            }
+        }
+    }
+
+    private string _unwrappedUrl = string.Empty;
+    public string UnwrappedUrl => _unwrappedUrl;
+
+    public bool ShowRedirectInfo =>
+        !string.IsNullOrWhiteSpace(_openUrl) &&
+        !string.IsNullOrWhiteSpace(_unwrappedUrl) &&
+        !string.Equals(_openUrl.Trim(), _unwrappedUrl, StringComparison.OrdinalIgnoreCase);
+
+    // -----------------------------------------------------------------------
     // Browsers tab
     // -----------------------------------------------------------------------
 
@@ -87,8 +115,25 @@ public class SettingsViewModel : ViewModelBase
     }
 
     // -----------------------------------------------------------------------
-    // Fallback browser
+    // Behaviour — always ask vs fallback
     // -----------------------------------------------------------------------
+
+    private bool _alwaysAsk;
+    public bool AlwaysAsk
+    {
+        get => _alwaysAsk;
+        set
+        {
+            if (SetField(ref _alwaysAsk, value))
+            {
+                _appConfig.AlwaysAsk = value;
+                _configService.Save(_appConfig);
+                OnPropertyChanged(nameof(ShowFallbackSection));
+            }
+        }
+    }
+
+    public bool ShowFallbackSection => !AlwaysAsk;
 
     private Browser? _fallbackBrowser;
     public Browser? FallbackBrowser
@@ -128,6 +173,9 @@ public class SettingsViewModel : ViewModelBase
     public ICommand RegisterCommand          { get; }
     public ICommand UnregisterCommand        { get; }
     public ICommand BrowseExeCommand         { get; }
+    public ICommand ExportConfigCommand      { get; }
+    public ICommand ImportConfigCommand      { get; }
+    public ICommand OpenInBrowserCommand     { get; }
 
     // -----------------------------------------------------------------------
     // Constructor
@@ -157,8 +205,13 @@ public class SettingsViewModel : ViewModelBase
         RegisterCommand          = new RelayCommand(Register);
         UnregisterCommand        = new RelayCommand(Unregister);
         BrowseExeCommand         = new RelayCommand(BrowseExe);
+        ExportConfigCommand      = new RelayCommand(ExportConfig);
+        ImportConfigCommand      = new RelayCommand(ImportConfig);
+        OpenInBrowserCommand     = new RelayCommand<Browser?>(OpenInBrowser);
 
         Rules.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasNoRules));
+
+        _alwaysAsk = appConfig.AlwaysAsk;
 
         LoadBrowsers(detectedBrowsers);
         LoadRules();
@@ -352,6 +405,94 @@ public class SettingsViewModel : ViewModelBase
         var registrar = new ProtocolRegistrar();
         registrar.Unregister();
         RefreshRegistrationStatus();
+    }
+
+    // -----------------------------------------------------------------------
+    // Open tab — launch URL in a browser
+    // -----------------------------------------------------------------------
+
+    private void OpenInBrowser(Browser? browser)
+    {
+        if (browser is null) return;
+        string url = Services.UrlParser.Unwrap(OpenUrl?.Trim() ?? "");
+        if (string.IsNullOrWhiteSpace(url)) return;
+
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName        = browser.ExePath,
+                Arguments       = string.IsNullOrWhiteSpace(browser.AdditionalArgs)
+                                    ? $"\"{url}\""
+                                    : $"{browser.AdditionalArgs} \"{url}\"",
+                UseShellExecute = true,
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show(
+                $"Could not launch {browser.Name}:\n{ex.Message}",
+                "Simple Browser Picker", System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Warning);
+        }
+    }
+
+    // -----------------------------------------------------------------------
+    // Config export / import
+    // -----------------------------------------------------------------------
+
+    private void ExportConfig()
+    {
+        var dlg = new Microsoft.Win32.SaveFileDialog
+        {
+            Title      = "Export configuration",
+            Filter     = "JSON files (*.json)|*.json",
+            FileName   = "simple-browser-picker-config.json",
+        };
+        if (dlg.ShowDialog() == true)
+        {
+            try
+            {
+                System.IO.File.Copy(_configService.ConfigPath, dlg.FileName, overwrite: true);
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Could not export config:\n{ex.Message}",
+                    "Simple Browser Picker", System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+            }
+        }
+    }
+
+    private void ImportConfig()
+    {
+        var dlg = new Microsoft.Win32.OpenFileDialog
+        {
+            Title  = "Import configuration",
+            Filter = "JSON files (*.json)|*.json",
+        };
+        if (dlg.ShowDialog() == true)
+        {
+            try
+            {
+                System.IO.File.Copy(dlg.FileName, _configService.ConfigPath, overwrite: true);
+                _appConfig = _configService.Load();
+                _alwaysAsk = _appConfig.AlwaysAsk;
+                OnPropertyChanged(nameof(AlwaysAsk));
+                OnPropertyChanged(nameof(ShowFallbackSection));
+                LoadBrowsers(_detector.Detect());
+                LoadRules();
+                LoadFallbackBrowser();
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Could not import config:\n{ex.Message}",
+                    "Simple Browser Picker", System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+            }
+        }
     }
 
     private void RefreshRegistrationStatus()

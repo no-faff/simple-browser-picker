@@ -14,7 +14,10 @@ public class ConfigService
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                      "SimpleBrowserPicker");
 
-    private static readonly string ConfigPath = Path.Combine(ConfigDir, "config.json");
+    private static readonly string _configPath = Path.Combine(ConfigDir, "config.json");
+
+    /// <summary>Full path to the config file on disk.</summary>
+    public string ConfigPath => _configPath;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -28,12 +31,12 @@ public class ConfigService
     /// </summary>
     public AppConfig Load()
     {
-        if (!File.Exists(ConfigPath))
+        if (!File.Exists(_configPath))
             return new AppConfig();
 
         try
         {
-            string json = File.ReadAllText(ConfigPath);
+            string json = File.ReadAllText(_configPath);
             return JsonSerializer.Deserialize<AppConfig>(json, JsonOptions) ?? new AppConfig();
         }
         catch
@@ -49,9 +52,9 @@ public class ConfigService
     {
         Directory.CreateDirectory(ConfigDir);
         string json = JsonSerializer.Serialize(config, JsonOptions);
-        File.WriteAllText(ConfigPath, json);
+        File.WriteAllText(_configPath, json);
     }
 
     /// <summary>Whether a config file already exists on disk.</summary>
-    public bool ConfigExists() => File.Exists(ConfigPath);
+    public bool ConfigExists() => File.Exists(_configPath);
 }

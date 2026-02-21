@@ -31,9 +31,13 @@ public class PickerViewModel : ViewModelBase
     }
 
     public string DisplayUrl  { get; }
+    public string RawUrl      { get; }
     public string UrlDomain   { get; }
     public string UrlScheme   { get; }
     public string UrlSuffix   { get; }
+
+    /// <summary>True when the URL was unwrapped from a SafeLinks/redirect wrapper.</summary>
+    public bool WasRedirected { get; }
 
     public string AlwaysUseLabel => $"Remember my choice for {_domain}";
 
@@ -61,11 +65,13 @@ public class PickerViewModel : ViewModelBase
 
     public PickerViewModel(string url, List<Browser> browsers, ConfigService config, AppConfig appConfig)
     {
+        RawUrl = url;
         _url = UrlParser.Unwrap(url);
         _config = config;
         _appConfig = appConfig;
         _domain = UrlParser.ExtractDomain(_url);
 
+        WasRedirected = !string.Equals(url, _url, StringComparison.OrdinalIgnoreCase);
         DisplayUrl = _url;
         UrlDomain  = _domain;
 
