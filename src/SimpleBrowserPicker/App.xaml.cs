@@ -134,14 +134,30 @@ public partial class App : Application
     {
         var vm     = new PickerViewModel(url, _browsers, _configService, _config);
         var window = new PickerWindow(vm);
+        window.SettingsRequested += (_, _) => ShowSettings();
+        window.Closed += (_, _) =>
+        {
+            // If no other windows are open, shut down
+            if (Windows.Count == 0)
+                Shutdown();
+        };
         window.Show();
     }
 
     private void ShowSettings()
     {
-        var vm     = new SettingsViewModel(_configService, _detector, _config, _browsers);
-        var window = new SettingsWindow(vm);
-        window.Show();
+        try
+        {
+            var vm     = new SettingsViewModel(_configService, _detector, _config, _browsers);
+            var window = new SettingsWindow(vm);
+            window.Closed += (_, _) => Shutdown();
+            window.Show();
+        }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show(ex.ToString(), "Settings error");
+            Shutdown();
+        }
     }
 
     private void ShowFirstRun()

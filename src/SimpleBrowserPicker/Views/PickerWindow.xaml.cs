@@ -158,6 +158,31 @@ public partial class PickerWindow : Window
             _vm.SelectedBrowser = browser;
     }
 
+    private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();
+
+    private void InfoHint_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is FrameworkElement el && el.ToolTip is string tip)
+        {
+            el.ToolTip = new System.Windows.Controls.ToolTip
+            {
+                Content = tip,
+                PlacementTarget = el,
+                IsOpen = true,
+            };
+        }
+    }
+
+    private void SettingsButton_Click(object sender, RoutedEventArgs e)
+    {
+        _suppressDeactivateClose = true;
+        SettingsRequested?.Invoke(this, EventArgs.Empty);
+        Close();
+    }
+
+    /// <summary>Raised when the user clicks the settings gear.</summary>
+    public event EventHandler? SettingsRequested;
+
     private void RootBorder_MouseDown(object sender, MouseButtonEventArgs e)
     {
         // Allow dragging the window

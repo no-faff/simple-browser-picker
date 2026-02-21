@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Windows.Input;
 using SimpleBrowserPicker.Models;
 using SimpleBrowserPicker.Services;
@@ -19,14 +20,7 @@ public class PickerViewModel : ViewModelBase
     public Browser? SelectedBrowser
     {
         get => _selectedBrowser;
-        set
-        {
-            SetField(ref _selectedBrowser, value);
-            OnPropertyChanged(nameof(AlwaysUseLabel));
-            OnPropertyChanged(nameof(AlwaysUseLabelVisible));
-            OnPropertyChanged(nameof(SetAsFallbackLabel));
-            OnPropertyChanged(nameof(ShowSetAsFallback));
-        }
+        set => SetField(ref _selectedBrowser, value);
     }
 
     private bool _alwaysUseChecked;
@@ -41,12 +35,9 @@ public class PickerViewModel : ViewModelBase
     public string UrlScheme   { get; }
     public string UrlSuffix   { get; }
 
-    public string AlwaysUseLabel =>
-        SelectedBrowser is null
-            ? string.Empty
-            : $"Always use {SelectedBrowser.Name} for {_domain}";
+    public string AlwaysUseLabel => $"Remember my choice for {_domain}";
 
-    public bool AlwaysUseLabelVisible => SelectedBrowser is not null && !string.IsNullOrEmpty(_domain);
+    public bool AlwaysUseLabelVisible => !string.IsNullOrEmpty(_domain);
 
     private bool _setAsFallbackChecked;
     public bool SetAsFallbackChecked
@@ -55,13 +46,9 @@ public class PickerViewModel : ViewModelBase
         set => SetField(ref _setAsFallbackChecked, value);
     }
 
-    public string SetAsFallbackLabel =>
-        SelectedBrowser is null
-            ? string.Empty
-            : $"Use {SelectedBrowser.Name} for all other links";
+    public string SetAsFallbackLabel => "Use as my default for all sites";
 
     public bool ShowSetAsFallback =>
-        SelectedBrowser is not null &&
         string.IsNullOrEmpty(_appConfig.FallbackBrowserExePath);
 
     /// <summary>Set to true when the picker should close.</summary>
@@ -93,8 +80,22 @@ public class PickerViewModel : ViewModelBase
             UrlSuffix = string.Empty;
         }
 
+        // Filter out our own app and Internet Explorer
+        string ownExe = Environment.ProcessPath ?? string.Empty;
+        int shortcut = 1;
         foreach (var b in browsers)
+        {
+            if (b.ExePath.Equals(ownExe, StringComparison.OrdinalIgnoreCase))
+                continue;
+            if (Path.GetFileName(b.ExePath).Equals("iexplore.exe", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (shortcut <= 9)
+                b.ShortcutLabel = shortcut.ToString();
+            shortcut++;
+
             Browsers.Add(b);
+        }
 
         OpenCommand   = new RelayCommand<Browser?>(b => Launch(b));
         CancelCommand = new RelayCommand(Cancel);

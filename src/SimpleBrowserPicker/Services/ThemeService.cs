@@ -66,6 +66,8 @@ public static class ThemeService
             res["ForegroundBrush"]= new SolidColorBrush(Color.FromRgb(0xF3, 0xF3, 0xF3));
             res["MutedBrush"]     = new SolidColorBrush(Color.FromRgb(0xA0, 0xA0, 0xA0));
             res["ShortcutFgBrush"]= new SolidColorBrush(Color.FromRgb(0x70, 0x70, 0x70));
+            res["CardBrush"]      = new SolidColorBrush(Color.FromRgb(0x33, 0x33, 0x33));
+            res["InputBrush"]     = new SolidColorBrush(Color.FromRgb(0x2A, 0x2A, 0x2A));
         }
         else
         {
@@ -75,6 +77,8 @@ public static class ThemeService
             res["ForegroundBrush"]= new SolidColorBrush(Color.FromRgb(0x1A, 0x1A, 0x1A));
             res["MutedBrush"]     = new SolidColorBrush(Color.FromRgb(0x6E, 0x6E, 0x6E));
             res["ShortcutFgBrush"]= new SolidColorBrush(Color.FromRgb(0x88, 0x88, 0x88));
+            res["CardBrush"]      = new SolidColorBrush(Color.FromRgb(0xF7, 0xF7, 0xF7));
+            res["InputBrush"]     = new SolidColorBrush(Colors.White);
         }
 
         res["AccentBrush"] = new SolidColorBrush(accent);

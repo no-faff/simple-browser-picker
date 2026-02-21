@@ -31,5 +31,11 @@ public class Browser
     /// </summary>
     public bool IsCustom { get; set; }
 
+    /// <summary>
+    /// Keyboard shortcut label ("1"–"9") or empty if none.
+    /// Set by the picker view model, not by the detector.
+    /// </summary>
+    public string ShortcutLabel { get; set; } = string.Empty;
+
     public override string ToString() => Name;
 }

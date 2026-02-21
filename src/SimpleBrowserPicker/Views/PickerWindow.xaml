@@ -23,24 +23,85 @@
 
         <StackPanel MinWidth="340" MaxWidth="480">
 
-            <!-- URL strip — domain emphasised, rest muted -->
+            <!-- Accent stripe at the top -->
+            <Border Height="2" Background="{DynamicResource AccentBrush}" Opacity="0.5"
+                    CornerRadius="8,8,0,0"/>
+
+            <!-- Header — instruction + domain + settings + close -->
             <Border Style="{StaticResource UrlStripBorder}">
-                <TextBlock Style="{StaticResource UrlTextBlock}"
-                           ToolTip="{Binding DisplayUrl}">
-                    <Run Text="{Binding UrlScheme, Mode=OneTime}"
-                         Foreground="{DynamicResource MutedBrush}"/><!--
-                 --><Run Text="{Binding UrlDomain, Mode=OneTime}"
-                         FontWeight="SemiBold"
-                         Foreground="{DynamicResource ForegroundBrush}"/><!--
-                 --><Run Text="{Binding UrlSuffix, Mode=OneTime}"
-                         Foreground="{DynamicResource MutedBrush}"/>
-                </TextBlock>
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Style="{StaticResource CloseButton}"
+                            Click="CloseButton_Click" Margin="4,0,0,0"/>
+                    <Button DockPanel.Dock="Right" Style="{StaticResource CloseButton}"
+                            Click="SettingsButton_Click" Margin="4,0,0,0"
+                            ToolTip="Settings">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="Bg" Background="Transparent"
+                                        CornerRadius="3" Width="20" Height="20">
+                                    <!-- Gear icon -->
+                                    <Path Data="M12,15.5A3.5,3.5 0 0,1 8.5,12 3.5,3.5 0 0,1 12,8.5 3.5,3.5 0 0,1 15.5,12 3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.04 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.04 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"
+                                          Fill="{DynamicResource MutedBrush}"
+                                          Stretch="Uniform"
+                                          Width="14" Height="14"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bg" Property="Background"
+                                                Value="{DynamicResource HoverBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <TextBlock Style="{StaticResource UrlTextBlock}"
+                               ToolTip="{Binding DisplayUrl}">
+                        <Run Text="Open "
+                             Foreground="{DynamicResource MutedBrush}"/><!--
+                     --><Run Text="{Binding UrlDomain, Mode=OneTime}"
+                             FontWeight="SemiBold"
+                             Foreground="{DynamicResource ForegroundBrush}"/><!--
+                     --><Run Text=" in…"
+                             Foreground="{DynamicResource MutedBrush}"/>
+                    </TextBlock>
+                </DockPanel>
             </Border>
+
+            <!-- Checkboxes — above the list so they're always visible -->
+            <StackPanel Margin="16,10,16,6">
+                <StackPanel Orientation="Horizontal"
+                            Visibility="{Binding AlwaysUseLabelVisible, Converter={StaticResource BoolToVis}}"
+                            Margin="0,0,0,6">
+                    <CheckBox IsChecked="{Binding AlwaysUseChecked, Mode=TwoWay}"
+                              Content="{Binding AlwaysUseLabel}"
+                              Style="{StaticResource AlwaysUseCheckBox}"/>
+                    <TextBlock Style="{StaticResource InfoHint}"
+                               ToolTipService.InitialShowDelay="150"
+                               ToolTip="Tick this, then click a browser. Next time you open a link to this site it will go straight there — no picker."
+                               MouseLeftButtonDown="InfoHint_Click"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal"
+                            Visibility="{Binding ShowSetAsFallback, Converter={StaticResource BoolToVis}}"
+                            Margin="0,0,0,2">
+                    <CheckBox IsChecked="{Binding SetAsFallbackChecked, Mode=TwoWay}"
+                              Content="{Binding SetAsFallbackLabel}"
+                              Style="{StaticResource AlwaysUseCheckBox}"/>
+                    <TextBlock Style="{StaticResource InfoHint}"
+                               ToolTipService.InitialShowDelay="150"
+                               ToolTip="Tick this, then click a browser. All links will go to that browser silently unless you've set a rule for a specific site."
+                               MouseLeftButtonDown="InfoHint_Click"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Separator -->
+            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="16,0"/>
 
             <!-- Browser list -->
             <ScrollViewer x:Name="BrowserScroller"
                           VerticalScrollBarVisibility="Auto"
-                          Margin="8,4,8,4"
+                          Margin="8,4,8,8"
                           Focusable="False">
                 <ScrollViewer.Resources>
                     <Style TargetType="ScrollBar" BasedOn="{StaticResource PickerScrollBar}"/>
@@ -70,31 +131,13 @@
                                     <TextBlock VerticalAlignment="Center"
                                                Margin="8,0,0,0"
                                                Style="{StaticResource ShortcutBadgeText}"
-                                               Text="{Binding Path=(ItemsControl.AlternationIndex),
-                                                      RelativeSource={RelativeSource AncestorType=ContentPresenter},
-                                                      Converter={StaticResource IndexToShortcutConverter}}"/>
+                                               Text="{Binding ShortcutLabel}"/>
                                 </StackPanel>
                             </Button>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
-
-            <!-- "Always use" checkbox -->
-            <Border Visibility="{Binding AlwaysUseLabelVisible, Converter={StaticResource BoolToVis}}"
-                    Margin="12,2,12,4">
-                <CheckBox IsChecked="{Binding AlwaysUseChecked, Mode=TwoWay}"
-                          Content="{Binding AlwaysUseLabel}"
-                          Style="{StaticResource AlwaysUseCheckBox}"/>
-            </Border>
-
-            <!-- "Set as fallback" checkbox — only shown when no fallback is configured -->
-            <Border Visibility="{Binding ShowSetAsFallback, Converter={StaticResource BoolToVis}}"
-                    Margin="12,2,12,8">
-                <CheckBox IsChecked="{Binding SetAsFallbackChecked, Mode=TwoWay}"
-                          Content="{Binding SetAsFallbackLabel}"
-                          Style="{StaticResource AlwaysUseCheckBox}"/>
-            </Border>
 
         </StackPanel>
     </Border>

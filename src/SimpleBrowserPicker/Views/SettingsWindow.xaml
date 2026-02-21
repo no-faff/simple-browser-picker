@@ -5,212 +5,321 @@
         Width="620" Height="480"
         MinWidth="480" MinHeight="380"
         WindowStartupLocation="CenterScreen"
-        Style="{StaticResource AppWindow}">
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="CanResizeWithGrip">
 
-    <Grid>
-        <TabControl Margin="0">
+    <!-- Outer margin gives space for the drop shadow -->
+    <Border Margin="10"
+            Background="{DynamicResource SurfaceBrush}"
+            CornerRadius="8">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" ShadowDepth="4"
+                              Opacity="0.22" Color="#000000"/>
+        </Border.Effect>
+        <Border CornerRadius="8" ClipToBounds="True">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>  <!-- accent stripe -->
+                    <RowDefinition Height="Auto"/>  <!-- title bar -->
+                    <RowDefinition Height="*"/>     <!-- content -->
+                </Grid.RowDefinitions>
 
-            <!-- ============================================================
-                 Browsers tab
-                 ============================================================ -->
-            <TabItem Header="Browsers">
-                <Grid Margin="12">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+                <!-- ============================================================
+                     Accent stripe
+                     ============================================================ -->
+                <Border Grid.Row="0" Height="2"
+                        Background="{DynamicResource AccentBrush}"/>
 
-                    <!-- Detected + custom browser list -->
-                    <Border Grid.Row="0" Style="{StaticResource ListBorder}">
-                        <ListBox ItemsSource="{Binding Browsers}"
-                                 SelectedItem="{Binding SelectedBrowser}"
-                                 BorderThickness="0"
-                                 Background="Transparent">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal" Margin="4,3">
-                                        <Image Source="{Binding Icon}"
-                                               Width="20" Height="20" Margin="0,0,8,0"
-                                               RenderOptions.BitmapScalingMode="HighQuality"/>
-                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                        <TextBlock Text=" (custom)" VerticalAlignment="Center"
-                                                   Foreground="Gray"
-                                                   Visibility="{Binding IsCustom,
-                                                       Converter={StaticResource BoolToVis}}"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </Border>
+                <!-- ============================================================
+                     Custom title bar with pill tabs
+                     ============================================================ -->
+                <Border Grid.Row="1" Padding="16,10,16,10"
+                        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                    <!-- Action buttons -->
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,8,0,8" HorizontalAlignment="Right">
-                        <Button Content="Refresh" Command="{Binding RefreshBrowsersCommand}"
-                                Style="{StaticResource SecondaryButton}" Margin="0,0,6,0"/>
-                        <Button Content="Remove custom" Command="{Binding RemoveBrowserCommand}"
-                                Style="{StaticResource SecondaryButton}"/>
-                    </StackPanel>
-
-                    <!-- Add custom browser -->
-                    <GroupBox Grid.Row="2" Header="Add custom browser">
-                        <Grid Margin="4">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" VerticalAlignment="Center" Margin="0,4,8,4"/>
-                            <TextBox   Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding CustomBrowserName, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
-
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Exe:" VerticalAlignment="Center" Margin="0,4,8,4"/>
-                            <TextBox   Grid.Row="1" Grid.Column="1" Text="{Binding CustomBrowserExe, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
-                            <Button    Grid.Row="1" Grid.Column="2" Content="Browse…" Command="{Binding BrowseExeCommand}"
-                                       Style="{StaticResource SecondaryButton}" Margin="4,4,0,4"/>
-
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Args:" VerticalAlignment="Center" Margin="0,4,8,4"/>
-                            <TextBox   Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding CustomBrowserArgs, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
-
-                            <Button    Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
-                                       Content="Add" Command="{Binding AddCustomBrowserCommand}"
-                                       HorizontalAlignment="Right" Margin="0,4,0,0"/>
-                        </Grid>
-                    </GroupBox>
-                </Grid>
-            </TabItem>
-
-            <!-- ============================================================
-                 Rules tab
-                 ============================================================ -->
-            <TabItem Header="Rules">
-                <Grid Margin="12">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- Fallback browser -->
-                    <GroupBox Grid.Row="0" Header="Fallback browser" Margin="0,0,0,8">
-                        <StackPanel Margin="4">
-                            <TextBlock TextWrapping="Wrap" Margin="0,0,0,6"
-                                       Text="Links that don't match any rule open in this browser silently."/>
-                            <ComboBox ItemsSource="{Binding Browsers}"
-                                      SelectedItem="{Binding FallbackBrowser}"
-                                      DisplayMemberPath="Name"/>
+                        <!-- Pill tabs — centred -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <RadioButton x:Name="TabBrowsers" Content="Browsers"
+                                         Style="{StaticResource PillTab}"
+                                         IsChecked="True"
+                                         Checked="PillTab_Checked"/>
+                            <RadioButton x:Name="TabRules" Content="Rules"
+                                         Style="{StaticResource PillTab}"
+                                         Margin="4,0,0,0"
+                                         Checked="PillTab_Checked"/>
+                            <RadioButton x:Name="TabAbout" Content="About"
+                                         Style="{StaticResource PillTab}"
+                                         Margin="4,0,0,0"
+                                         Checked="PillTab_Checked"/>
                         </StackPanel>
-                    </GroupBox>
 
-                    <!-- Existing rules -->
-                    <Border Grid.Row="1" Style="{StaticResource ListBorder}">
-                        <ListBox ItemsSource="{Binding Rules}"
-                                 SelectedItem="{Binding SelectedRule}"
-                                 BorderThickness="0"
-                                 Background="Transparent">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="4,3">
+                        <!-- Close button — right -->
+                        <Button Grid.Column="2"
+                                Style="{StaticResource CloseButton}"
+                                HorizontalAlignment="Right"
+                                Click="CloseButton_Click"/>
+                    </Grid>
+                </Border>
+
+                <!-- ============================================================
+                     Tab content (native tab strip hidden)
+                     ============================================================ -->
+                <TabControl x:Name="MainTabs" Grid.Row="2"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0">
+
+                    <!-- ========================================================
+                         Browsers tab
+                         ======================================================== -->
+                    <TabItem Header="Browsers" Visibility="Collapsed">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Padding="20,0,20,20">
+                            <StackPanel>
+
+                                <!-- Detected browsers card -->
+                                <TextBlock Text="DETECTED BROWSERS"
+                                           FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MutedBrush}"
+                                           Margin="4,0,0,6"/>
+                                <Border Style="{StaticResource CardBorder}">
+                                    <ListBox ItemsSource="{Binding Browsers}"
+                                             SelectedItem="{Binding SelectedBrowser}"
+                                             BorderThickness="0"
+                                             Background="Transparent"
+                                             MaxHeight="220">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" Margin="4,3">
+                                                    <Image Source="{Binding Icon}"
+                                                           Width="20" Height="20" Margin="0,0,8,0"
+                                                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                                                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                                    <TextBlock Text=" (custom)" VerticalAlignment="Center"
+                                                               Foreground="{DynamicResource MutedBrush}"
+                                                               Visibility="{Binding IsCustom,
+                                                                   Converter={StaticResource BoolToVis}}"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </Border>
+
+                                <!-- Action buttons -->
+                                <StackPanel Orientation="Horizontal" Margin="0,8,0,0" HorizontalAlignment="Right">
+                                    <Button Content="Refresh" Command="{Binding RefreshBrowsersCommand}"
+                                            Style="{StaticResource SecondaryButton}" Margin="0,0,6,0"/>
+                                    <Button Content="Remove custom" Command="{Binding RemoveBrowserCommand}"
+                                            Style="{StaticResource SecondaryButton}"/>
+                                </StackPanel>
+
+                                <!-- Add custom browser card -->
+                                <TextBlock Text="ADD A BROWSER THAT WASN'T DETECTED"
+                                           FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MutedBrush}"
+                                           Margin="4,16,0,6"/>
+                                <Border Style="{StaticResource CardBorder}">
+                                    <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="180"/>
-                                            <ColumnDefinition Width="16"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Name:" VerticalAlignment="Center" Margin="0,4,8,4"/>
+                                        <TextBox   Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
+                                                   Text="{Binding CustomBrowserName, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Path:" VerticalAlignment="Center" Margin="0,4,8,4"/>
+                                        <TextBox   Grid.Row="1" Grid.Column="1"
+                                                   Text="{Binding CustomBrowserExe, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                                        <Button    Grid.Row="1" Grid.Column="2" Content="Browse…" Command="{Binding BrowseExeCommand}"
+                                                   Style="{StaticResource SecondaryButton}" Margin="6,4,0,4"/>
+
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Extra args:" VerticalAlignment="Center" Margin="0,4,8,4"/>
+                                        <Grid      Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,4">
+                                            <TextBox Text="{Binding CustomBrowserArgs, UpdateSourceTrigger=PropertyChanged}"
+                                                     x:Name="ArgsTextBox"/>
+                                            <TextBlock Text="optional, e.g. --incognito"
+                                                       IsHitTestVisible="False"
+                                                       Foreground="{DynamicResource MutedBrush}"
+                                                       VerticalAlignment="Center" Margin="10,0,0,0"
+                                                       Visibility="{Binding Text, ElementName=ArgsTextBox,
+                                                           Converter={StaticResource EmptyToVisConverter}}"/>
+                                        </Grid>
+
+                                        <Button    Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
+                                                   Content="Add" Command="{Binding AddCustomBrowserCommand}"
+                                                   HorizontalAlignment="Right" Margin="0,8,0,0"/>
+                                    </Grid>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
+
+                    <!-- ========================================================
+                         Rules tab
+                         ======================================================== -->
+                    <TabItem Header="Rules" Visibility="Collapsed">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Padding="20,0,20,20">
+                            <StackPanel>
+
+                                <!-- Fallback browser card -->
+                                <TextBlock Text="FALLBACK BROWSER"
+                                           FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MutedBrush}"
+                                           Margin="4,0,0,6"/>
+                                <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock TextWrapping="Wrap" Margin="0,0,0,8"
+                                                   Text="Links that don't match any rule open in this browser silently."/>
+                                        <ComboBox ItemsSource="{Binding Browsers}"
+                                                  SelectedItem="{Binding FallbackBrowser}"
+                                                  DisplayMemberPath="Name"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Rules list card -->
+                                <TextBlock Text="ROUTING RULES"
+                                           FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MutedBrush}"
+                                           Margin="4,0,0,6"/>
+                                <Border Style="{StaticResource CardBorder}">
+                                    <ListBox ItemsSource="{Binding Rules}"
+                                             SelectedItem="{Binding SelectedRule}"
+                                             BorderThickness="0"
+                                             Background="Transparent"
+                                             MaxHeight="160">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="4,3">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="180"/>
+                                                        <ColumnDefinition Width="16"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding Domain}" FontFamily="Consolas"/>
+                                                    <TextBlock Grid.Column="1" Text="→" HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding BrowserName}"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </Border>
+
+                                <Button Content="Delete rule" Command="{Binding DeleteRuleCommand}"
+                                        HorizontalAlignment="Right" Margin="0,8,0,0"
+                                        Style="{StaticResource SecondaryButton}"/>
+
+                                <!-- Add rule card -->
+                                <TextBlock Text="ADD RULE"
+                                           FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MutedBrush}"
+                                           Margin="4,16,0,6"/>
+                                <Border Style="{StaticResource CardBorder}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding Domain}" FontFamily="Consolas"/>
-                                        <TextBlock Grid.Column="1" Text="→" HorizontalAlignment="Center"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding BrowserName}"/>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Domain:" VerticalAlignment="Center" Margin="0,4,8,4"/>
+                                        <Grid      Grid.Row="0" Grid.Column="1" Margin="0,4">
+                                            <TextBox Text="{Binding NewRuleDomain, UpdateSourceTrigger=PropertyChanged}"
+                                                     x:Name="DomainTextBox"/>
+                                            <TextBlock Text="e.g. github.com or *.google.com"
+                                                       IsHitTestVisible="False"
+                                                       Foreground="{DynamicResource MutedBrush}"
+                                                       VerticalAlignment="Center" Margin="10,0,0,0"
+                                                       Visibility="{Binding Text, ElementName=DomainTextBox,
+                                                           Converter={StaticResource EmptyToVisConverter}}"/>
+                                        </Grid>
+
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Browser:" VerticalAlignment="Center" Margin="0,4,8,4"/>
+                                        <ComboBox  Grid.Row="1" Grid.Column="1"
+                                                   ItemsSource="{Binding Browsers}"
+                                                   SelectedItem="{Binding NewRuleBrowser}"
+                                                   DisplayMemberPath="Name"
+                                                   Margin="0,4"/>
+
+                                        <Button    Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                                   Content="Add" Command="{Binding AddRuleCommand}"
+                                                   HorizontalAlignment="Right" Margin="0,8,0,0"/>
                                     </Grid>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </Border>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
 
-                    <Button Grid.Row="2" Content="Delete rule" Command="{Binding DeleteRuleCommand}"
-                            HorizontalAlignment="Right" Margin="0,8,0,0"
-                            Style="{StaticResource SecondaryButton}"/>
+                    <!-- ========================================================
+                         About tab
+                         ======================================================== -->
+                    <TabItem Header="About" Visibility="Collapsed">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Padding="20,0,20,20">
+                            <StackPanel>
 
-                    <!-- Add new rule -->
-                    <GroupBox Grid.Row="3" Header="Add rule" Margin="0,8,0,0">
-                        <Grid Margin="4">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                                <Border Style="{StaticResource CardBorder}" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="Simple Browser Picker" FontSize="18" FontWeight="SemiBold"
+                                                   Margin="0,0,0,8"/>
+                                        <TextBlock Margin="0,0,0,6">
+                                            <Run Text="Version "/>
+                                            <Run Text="{Binding AppVersion, Mode=OneWay}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="Part of the No Faff suite of small Windows utilities."
+                                                   Margin="0,0,0,6"/>
+                                        <TextBlock>
+                                            <Hyperlink NavigateUri="https://github.com/no-faff/simple-browser-picker"
+                                                       RequestNavigate="Hyperlink_RequestNavigate">
+                                                github.com/no-faff/simple-browser-picker
+                                            </Hyperlink>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Domain:" VerticalAlignment="Center" Margin="0,4,8,4"/>
-                            <Grid      Grid.Row="0" Grid.Column="1" Margin="0,4">
-                                <TextBox Text="{Binding NewRuleDomain, UpdateSourceTrigger=PropertyChanged}"
-                                         x:Name="DomainTextBox"/>
-                                <TextBlock Text="e.g. github.com or *.google.com"
-                                           IsHitTestVisible="False"
-                                           Foreground="{DynamicResource MutedBrush}"
-                                           VerticalAlignment="Center" Margin="6,0,0,0"
-                                           Visibility="{Binding Text, ElementName=DomainTextBox,
-                                               Converter={StaticResource EmptyToVisConverter}}"/>
-                            </Grid>
+                                <Border Style="{StaticResource CardBorder}">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding RegistrationStatus}" FontStyle="Italic"
+                                                   Margin="0,0,0,10"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="Register as default browser"
+                                                    Command="{Binding RegisterCommand}"
+                                                    Margin="0,0,8,0"/>
+                                            <Button Content="Unregister"
+                                                    Command="{Binding UnregisterCommand}"
+                                                    Style="{StaticResource SecondaryButton}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </TabItem>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Browser:" VerticalAlignment="Center" Margin="0,4,8,4"/>
-                            <ComboBox  Grid.Row="1" Grid.Column="1"
-                                       ItemsSource="{Binding Browsers}"
-                                       SelectedItem="{Binding NewRuleBrowser}"
-                                       DisplayMemberPath="Name"
-                                       Margin="0,4"/>
-
-                            <Button    Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
-                                       Content="Add" Command="{Binding AddRuleCommand}"
-                                       HorizontalAlignment="Right" Margin="0,4,0,0"/>
-                        </Grid>
-                    </GroupBox>
-                </Grid>
-            </TabItem>
-
-            <!-- ============================================================
-                 About tab
-                 ============================================================ -->
-            <TabItem Header="About">
-                <StackPanel Margin="20">
-                    <TextBlock Text="Simple Browser Picker" FontSize="18" FontWeight="SemiBold"
-                               Margin="0,0,0,8"/>
-                    <TextBlock Margin="0,0,0,6">
-                        <Run Text="Version "/>
-                        <Run Text="{Binding AppVersion}"/>
-                    </TextBlock>
-                    <TextBlock Text="Part of the No faff suite of small Windows utilities."
-                               Margin="0,0,0,6"/>
-                    <TextBlock Margin="0,0,0,14">
-                        <Hyperlink NavigateUri="https://github.com/no-faff/simple-browser-picker"
-                                   RequestNavigate="Hyperlink_RequestNavigate">
-                            github.com/no-faff/simple-browser-picker
-                        </Hyperlink>
-                    </TextBlock>
-
-                    <Separator Margin="0,0,0,14"/>
-
-                    <TextBlock Text="{Binding RegistrationStatus}" FontStyle="Italic"
-                               Margin="0,0,0,8"/>
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="Register as default browser"
-                                Command="{Binding RegisterCommand}"
-                                Margin="0,0,8,0"/>
-                        <Button Content="Unregister"
-                                Command="{Binding UnregisterCommand}"
-                                Style="{StaticResource SecondaryButton}"/>
-                    </StackPanel>
-                </StackPanel>
-            </TabItem>
-
-        </TabControl>
-    </Grid>
+                </TabControl>
+            </Grid>
+        </Border>
+    </Border>
 </Window>
