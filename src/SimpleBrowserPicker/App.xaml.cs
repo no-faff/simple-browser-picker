@@ -46,10 +46,18 @@ public partial class App : Application
 
             // Check for a matching rule — if found, launch immediately without showing the picker
             BrowserRule? rule = _config.SuspendRules ? null : FindMatchingRule(domain);
-            if (rule is not null && LaunchWithRule(rule, url))
+            if (rule is not null)
             {
-                Shutdown();
-                return;
+                // Exception rule (no browser) — skip to picker
+                if (string.IsNullOrEmpty(rule.BrowserExePath))
+                {
+                    // Fall through to picker
+                }
+                else if (LaunchWithRule(rule, url))
+                {
+                    Shutdown();
+                    return;
+                }
             }
 
             // No rule matched — try the fallback browser (unless "always ask" is on)

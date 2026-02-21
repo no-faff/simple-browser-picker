@@ -169,6 +169,18 @@
                                       Padding="20,0,20,20">
                             <StackPanel>
 
+                                <!-- Filter -->
+                                <Grid Margin="0,0,0,8">
+                                    <TextBox Text="{Binding BrowserFilter, UpdateSourceTrigger=PropertyChanged}"
+                                             x:Name="BrowserFilterBox"/>
+                                    <TextBlock Text="Filter browsers…"
+                                               IsHitTestVisible="False"
+                                               Foreground="{DynamicResource MutedBrush}"
+                                               VerticalAlignment="Center" Margin="10,0,0,0"
+                                               Visibility="{Binding Text, ElementName=BrowserFilterBox,
+                                                   Converter={StaticResource EmptyToVisConverter}}"/>
+                                </Grid>
+
                                 <!-- Detected browsers card -->
                                 <TextBlock Text="DETECTED BROWSERS"
                                            FontSize="11" FontWeight="SemiBold"
@@ -344,6 +356,18 @@
                                     </StackPanel>
                                 </Border>
 
+                                <!-- Filter -->
+                                <Grid Margin="0,0,0,8">
+                                    <TextBox Text="{Binding RuleFilter, UpdateSourceTrigger=PropertyChanged}"
+                                             x:Name="RuleFilterBox"/>
+                                    <TextBlock Text="Filter rules…"
+                                               IsHitTestVisible="False"
+                                               Foreground="{DynamicResource MutedBrush}"
+                                               VerticalAlignment="Center" Margin="10,0,0,0"
+                                               Visibility="{Binding Text, ElementName=RuleFilterBox,
+                                                   Converter={StaticResource EmptyToVisConverter}}"/>
+                                </Grid>
+
                                 <!-- Rules list card -->
                                 <TextBlock Text="ROUTING RULES"
                                            FontSize="11" FontWeight="SemiBold"
@@ -405,6 +429,7 @@
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
 
                                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Domain:" VerticalAlignment="Center" Margin="0,4,8,4"/>
@@ -425,8 +450,12 @@
                                                    SelectedItem="{Binding NewRuleBrowser}"
                                                    DisplayMemberPath="Name"
                                                    Margin="0,4"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1"
+                                                   Text="Leave empty to always show the picker for this domain"
+                                                   FontSize="11" Foreground="{DynamicResource MutedBrush}"
+                                                   Margin="0,0,0,4"/>
 
-                                        <Button    Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                                        <Button    Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
                                                    Content="Add" Command="{Binding AddRuleCommand}"
                                                    HorizontalAlignment="Right" Margin="0,8,0,0"/>
                                     </Grid>

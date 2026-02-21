@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Data;
 using System.Windows.Input;
 using SimpleBrowserPicker.Models;
 using SimpleBrowserPicker.Services;
@@ -44,6 +46,17 @@ public class SettingsViewModel : ViewModelBase
     // -----------------------------------------------------------------------
 
     public ObservableCollection<Browser> Browsers { get; } = new();
+
+    private string _browserFilter = string.Empty;
+    public string BrowserFilter
+    {
+        get => _browserFilter;
+        set
+        {
+            if (SetField(ref _browserFilter, value))
+                CollectionViewSource.GetDefaultView(Browsers).Refresh();
+        }
+    }
 
     private Browser? _selectedBrowser;
     public Browser? SelectedBrowser
@@ -116,6 +129,17 @@ public class SettingsViewModel : ViewModelBase
     public ObservableCollection<BrowserRule> Rules { get; } = new();
 
     public bool HasNoRules => Rules.Count == 0;
+
+    private string _ruleFilter = string.Empty;
+    public string RuleFilter
+    {
+        get => _ruleFilter;
+        set
+        {
+            if (SetField(ref _ruleFilter, value))
+                CollectionViewSource.GetDefaultView(Rules).Refresh();
+        }
+    }
 
     private BrowserRule? _selectedRule;
     public BrowserRule? SelectedRule
@@ -248,8 +272,7 @@ public class SettingsViewModel : ViewModelBase
         RemoveBrowserCommand     = new RelayCommand(RemoveBrowser,
             () => SelectedBrowser?.IsCustom == true);
         AddRuleCommand           = new RelayCommand(AddRule,
-            () => !string.IsNullOrWhiteSpace(NewRuleDomain) &&
-                  NewRuleBrowser is not null);
+            () => !string.IsNullOrWhiteSpace(NewRuleDomain));
         DeleteRuleCommand        = new RelayCommand(DeleteRule,
             () => SelectedRule is not null);
         RegisterCommand          = new RelayCommand(Register);
@@ -270,6 +293,24 @@ public class SettingsViewModel : ViewModelBase
         LoadRules();
         LoadFallbackBrowser();
         RefreshRegistrationStatus();
+
+        // Set up collection view filters
+        var browserView = CollectionViewSource.GetDefaultView(Browsers);
+        browserView.Filter = obj =>
+        {
+            if (string.IsNullOrWhiteSpace(_browserFilter)) return true;
+            return obj is Browser b &&
+                   b.Name.Contains(_browserFilter, StringComparison.OrdinalIgnoreCase);
+        };
+
+        var ruleView = CollectionViewSource.GetDefaultView(Rules);
+        ruleView.Filter = obj =>
+        {
+            if (string.IsNullOrWhiteSpace(_ruleFilter)) return true;
+            return obj is BrowserRule r &&
+                   (r.Domain.Contains(_ruleFilter, StringComparison.OrdinalIgnoreCase) ||
+                    r.BrowserName.Contains(_ruleFilter, StringComparison.OrdinalIgnoreCase));
+        };
     }
 
     // -----------------------------------------------------------------------
@@ -418,7 +459,7 @@ public class SettingsViewModel : ViewModelBase
 
     private void AddRule()
     {
-        if (string.IsNullOrWhiteSpace(NewRuleDomain) || NewRuleBrowser is null) return;
+        if (string.IsNullOrWhiteSpace(NewRuleDomain)) return;
 
         string domain = NewRuleDomain.Trim().ToLowerInvariant();
 
@@ -431,12 +472,13 @@ public class SettingsViewModel : ViewModelBase
             Rules.Remove(existing);
         }
 
+        // No browser selected = exception rule (always show picker for this domain)
         var rule = new BrowserRule
         {
             Domain         = domain,
-            BrowserExePath = NewRuleBrowser.ExePath,
-            BrowserName    = NewRuleBrowser.Name,
-            ProfileArgs    = NewRuleBrowser.AdditionalArgs,
+            BrowserExePath = NewRuleBrowser?.ExePath ?? string.Empty,
+            BrowserName    = NewRuleBrowser?.Name ?? "(always ask)",
+            ProfileArgs    = NewRuleBrowser?.AdditionalArgs ?? string.Empty,
         };
         _appConfig.Rules.Add(rule);
         _configService.Save(_appConfig);
