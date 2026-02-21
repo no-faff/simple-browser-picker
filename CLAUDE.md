@@ -96,37 +96,24 @@ dotnet run --project src/SimpleBrowserPicker -- "https://example.com"
 
 ## Current state (Feb 2026)
 
-The core rework is done: fallback browser, rule creation UI, silent routing.
-Commit `6aab08e`. The app compiles clean but hasn't been end-to-end tested
-yet (registration → link opens → rule fires → fallback fires). That's the
-next session task — do it together with the user.
+Core rework done. UX polish pass complete. Commit `b3a1d87`.
 
-### UX polish pass in progress
+All three windows (picker, settings, first-run) are borderless with accent
+stripe, drop shadow, thin scrollbars and consistent dark theme. The app
+compiles clean but hasn't been end-to-end tested yet (registration → link
+opens → rule fires → fallback fires). That's the next task.
 
-After the rework, Opus self-assessed against BrowserPicker and found these
-gaps. Items 2–7 are being fixed now. Item 1 is deferred (test together).
+### UX polish — completed items
 
-1. **End-to-end testing** — DEFERRED. Do with the user.
-2. **Settings rules tab is dense** — fallback dropdown, rule list and add-rule
-   form all in one tab. Not terrible, but could be cleaner. Fix: placeholder
-   text on the domain field ("e.g. github.com or *.google.com"), tighter
-   layout, visual breathing room.
-3. **No edit on rules** — can add and delete but not edit. Typo = delete and
-   re-add. BP has the same limitation. Fix: not full inline editing, but at
-   least pre-populate the add form when a rule is selected so editing is
-   select → tweak → add (replaces by domain).
-4. **Fallback dropdown shows raw detected names** — profile names like
-   "Profile 1" come from Chromium internals. Fix: this is actually already
-   handled by BrowserDetector which reads `shortcut_name` / `name` from
-   Local State. If those are still cryptic it's because the user hasn't
-   renamed them in the browser. No code fix needed, but worth checking.
-5. **No visual confirmation when a rule is added** — fix: scroll to and
-   highlight the new rule, or at minimum select it in the list.
-6. **No way to change fallback from picker** — the "use for all other links"
-   checkbox disappears once a fallback is set. Fix: show it always, but
-   pre-check it and show the current fallback name so the user can switch.
-7. **No wildcard hint** — domain field accepts `*.google.com` but nothing
-   tells the user. Fix: placeholder text.
+1. **End-to-end testing** — still to do with user.
+2. **Settings rules tab** — DONE. Placeholder text, cards, breathing room.
+3. **Rule editing** — DONE. Select → tweak → add (replaces by domain).
+4. **Fallback dropdown names** — no code fix needed (BrowserDetector reads
+   `shortcut_name`/`name` from Local State).
+5. **Visual confirmation on rule add** — DONE. Selects the new rule.
+6. **Fallback change from picker** — DONE. Checkbox always visible, label
+   shows current default name.
+7. **Wildcard hint** — DONE. Placeholder text on domain field.
 
 ### Design philosophy (for future Opus sessions)
 
