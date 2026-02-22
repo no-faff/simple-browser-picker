@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using Application = System.Windows.Application;
 using SimpleBrowserPicker.Models;
 using SimpleBrowserPicker.Services;
@@ -62,7 +62,7 @@ public partial class App : Application
             }
 
             // Check for a matching rule — if found, launch immediately without showing the picker
-            BrowserRule? rule = _config.SuspendRules ? null : FindMatchingRule(domain);
+            BrowserRule? rule = _config.SuspendRules ? null : FindMatchingRule(url);
             if (rule is not null)
             {
                 // Exception rule (no browser) — skip to picker
@@ -106,13 +106,13 @@ public partial class App : Application
     // Rule matching
     // -----------------------------------------------------------------------
 
-    private BrowserRule? FindMatchingRule(string domain)
+    private BrowserRule? FindMatchingRule(string url)
     {
-        if (string.IsNullOrEmpty(domain)) return null;
+        if (string.IsNullOrEmpty(url)) return null;
 
         foreach (var rule in _config.Rules)
         {
-            if (UrlParser.DomainMatches(domain, rule.Domain))
+            if (UrlParser.UrlMatches(url, rule.Domain))
                 return rule;
         }
         return null;
