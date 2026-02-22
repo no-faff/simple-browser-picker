@@ -95,4 +95,55 @@ public static class UrlParser
         // Exact match or www. prefix
         return urlDomain == rulePattern || urlDomain == "www." + rulePattern;
     }
+
+    /// <summary>
+    /// Returns true if <paramref name="url"/> matches <paramref name="pattern"/>.
+    ///
+    /// Pattern syntax:
+    ///   "github.com"          — domain-only, matches github.com and www.github.com
+    ///   "*.google.com"        — subdomain wildcard, matches any subdomain of google.com
+    ///   "github.com/gist"     — domain + path prefix, matches any URL under /gist
+    ///   "github.com/gist/*"   — domain + path wildcard, same but explicit
+    ///   "*.corp.com/internal" — combined subdomain wildcard + path prefix
+    /// </summary>
+    public static bool UrlMatches(string url, string pattern)
+    {
+        if (string.IsNullOrWhiteSpace(pattern))
+            return false;
+
+        if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri))
+            return false;
+
+        pattern = pattern.ToLowerInvariant();
+
+        int slashIdx = pattern.IndexOf('/');
+        if (slashIdx < 0)
+        {
+            // Domain-only pattern — existing behaviour
+            return DomainMatches(uri.Host.ToLowerInvariant(), pattern);
+        }
+
+        string domainPart = pattern[..slashIdx];
+        string pathPart   = pattern[slashIdx..]; // includes the leading /
+
+        if (!DomainMatches(uri.Host.ToLowerInvariant(), domainPart))
+            return false;
+
+        return PathMatches(uri.AbsolutePath.ToLowerInvariant(), pathPart);
+    }
+
+    private static bool PathMatches(string urlPath, string pathPattern)
+    {
+        if (!pathPattern.Contains('*'))
+            return urlPath.StartsWith(pathPattern, StringComparison.Ordinal);
+
+        // Convert wildcard pattern to regex: escape, then replace \* with .*
+        string regexPattern = "^" +
+            System.Text.RegularExpressions.Regex.Escape(pathPattern)
+                .Replace(@"\*", ".*") +
+            "$";
+        return System.Text.RegularExpressions.Regex.IsMatch(
+            urlPath, regexPattern, System.Text.RegularExpressions.RegexOptions.None);
+    }
+
 }
