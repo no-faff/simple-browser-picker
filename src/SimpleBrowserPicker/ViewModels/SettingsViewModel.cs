@@ -446,6 +446,17 @@ public class SettingsViewModel : ViewModelBase
         _configService.Save(_appConfig);
     }
 
+    /// <summary>Called by the view after a drag-drop reorder.</summary>
+    public void MoveBrowserTo(Browser dragged, Browser target)
+    {
+        int from = Browsers.IndexOf(dragged);
+        int to   = Browsers.IndexOf(target);
+        if (from < 0 || to < 0 || from == to) return;
+
+        Browsers.Move(from, to);
+        // Browser order is display-only — not persisted to config (resets on next browser refresh).
+    }
+
     private void SaveBrowserEdit()
     {
         if (SelectedBrowser is null) return;

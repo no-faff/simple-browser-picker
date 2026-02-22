@@ -143,6 +143,46 @@ public partial class SettingsWindow : Window
         ((SettingsViewModel)DataContext).MoveRuleTo(_draggedRule, target);
     }
 
+    // -----------------------------------------------------------------------
+    // Browsers drag-and-drop
+    // -----------------------------------------------------------------------
+
+    private System.Windows.Point _browserDragStart;
+    private SimpleBrowserPicker.Models.Browser? _draggedBrowser;
+
+    private void BrowsersListBox_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        _browserDragStart = e.GetPosition(null);
+    }
+
+    private void BrowsersListBox_PreviewMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+    {
+        if (e.LeftButton != System.Windows.Input.MouseButtonState.Pressed || _draggedBrowser is not null) return;
+
+        var pos  = e.GetPosition(null);
+        var diff = pos - _browserDragStart;
+        if (Math.Abs(diff.X) < SystemParameters.MinimumHorizontalDragDistance &&
+            Math.Abs(diff.Y) < SystemParameters.MinimumVerticalDragDistance) return;
+
+        if (sender is System.Windows.Controls.ListBox lb && lb.SelectedItem is SimpleBrowserPicker.Models.Browser browser)
+        {
+            _draggedBrowser = browser;
+            DragDrop.DoDragDrop(lb, browser, System.Windows.DragDropEffects.Move);
+            _draggedBrowser = null;
+        }
+    }
+
+    private void BrowsersListBox_Drop(object sender, System.Windows.DragEventArgs e)
+    {
+        if (_draggedBrowser is null) return;
+        if (sender is not System.Windows.Controls.ListBox lb) return;
+
+        var target = FindListBoxItem<SimpleBrowserPicker.Models.Browser>(lb, e.GetPosition(lb));
+        if (target is null || target == _draggedBrowser) return;
+
+        ((SettingsViewModel)DataContext).MoveBrowserTo(_draggedBrowser, target);
+    }
+
     private static T? FindListBoxItem<T>(System.Windows.Controls.ListBox listBox, System.Windows.Point point) where T : class
     {
         var element = listBox.InputHitTest(point) as System.Windows.DependencyObject;

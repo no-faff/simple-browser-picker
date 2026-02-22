@@ -197,11 +197,16 @@
 
                                 <!-- Detected browsers card -->
                                 <Border Style="{StaticResource CardBorder}">
-                                    <ListBox ItemsSource="{Binding Browsers}"
+                                    <ListBox x:Name="BrowsersListBox"
+                                             ItemsSource="{Binding Browsers}"
                                              SelectedItem="{Binding SelectedBrowser}"
                                              BorderThickness="0"
                                              Background="Transparent"
-                                             MaxHeight="200">
+                                             MaxHeight="200"
+                                             AllowDrop="True"
+                                             PreviewMouseLeftButtonDown="BrowsersListBox_PreviewMouseLeftButtonDown"
+                                             PreviewMouseMove="BrowsersListBox_PreviewMouseMove"
+                                             Drop="BrowsersListBox_Drop">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal" Margin="4,4">
