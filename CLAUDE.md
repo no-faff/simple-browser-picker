@@ -110,7 +110,7 @@ follows the Windows theme setting automatically.
 3. ✅ **Security check** — Google Transparency Report button on Open tab
 4. ✅ **Config export/import** — buttons in About tab
 5. ✅ **Browser editing** — select a browser to edit name, path, args; saved as overrides
-6. ✅ **Reordering** — up/down buttons for browsers and rules
+6. ✅ **Reordering** — up/down buttons and drag-and-drop for browsers and rules
 7. ✅ **Filter/search** — filter boxes on Browsers and Rules tabs
 8. ✅ **Rule exceptions** — add rule with no browser = always show picker
 9. ✅ **SharePoint/Office** — .xlsx/.docx/.pptx URLs open in desktop Office apps
@@ -118,6 +118,8 @@ follows the Windows theme setting automatically.
 12. ✅ **Suspend rules** — temporarily ignore all rules
 
 Skipped: 11 (custom icon paths), 13 (collapse/expand) — not needed.
+
+Beyond BP parity: path pattern matching in rules (`github.com/gist/*`, `*.corp.com/path`) and xUnit test coverage for UrlParser.
 
 ### Still to do
 - End-to-end testing with user
