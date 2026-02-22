@@ -481,7 +481,7 @@
                                 <TextBlock Style="{StaticResource SectionHeader}"
                                            Text="Add a rule" Margin="0,28,0,4"/>
                                 <TextBlock Style="{StaticResource SectionDescription}"
-                                           Text="Type a domain and choose which browser it should open in. Use *.example.com to match all subdomains."/>
+                                           Text="Type a domain or URL pattern and choose which browser to open it in. Use *.example.com for subdomains, or example.com/path/* for path matching."/>
 
                                 <Border Style="{StaticResource CardBorder}">
                                     <Grid>
@@ -496,12 +496,12 @@
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
 
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Domain"
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Pattern"
                                                    VerticalAlignment="Center" Margin="0,4,8,4"/>
                                         <Grid      Grid.Row="0" Grid.Column="1" Margin="0,4">
                                             <TextBox Text="{Binding NewRuleDomain, UpdateSourceTrigger=PropertyChanged}"
                                                      x:Name="DomainTextBox"/>
-                                            <TextBlock Text="e.g. github.com or *.google.com"
+                                            <TextBlock Text="e.g. github.com, *.corp.com, github.com/gist/*"
                                                        IsHitTestVisible="False"
                                                        Foreground="{DynamicResource MutedBrush}"
                                                        VerticalAlignment="Center" Margin="10,0,0,0"
