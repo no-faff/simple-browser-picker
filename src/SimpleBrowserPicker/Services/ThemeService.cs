@@ -60,24 +60,25 @@ public static class ThemeService
     {
         if (isDark)
         {
-            res["SurfaceBrush"]   = new SolidColorBrush(Color.FromRgb(0x2D, 0x2D, 0x2D));
-            res["BorderBrush"]    = new SolidColorBrush(Color.FromRgb(0x40, 0x40, 0x40));
-            res["HoverBrush"]     = new SolidColorBrush(Color.FromRgb(0x3A, 0x3A, 0x3A));
-            res["ForegroundBrush"]= new SolidColorBrush(Color.FromRgb(0xF3, 0xF3, 0xF3));
-            res["MutedBrush"]     = new SolidColorBrush(Color.FromRgb(0xA0, 0xA0, 0xA0));
-            res["ShortcutFgBrush"]= new SolidColorBrush(Color.FromRgb(0x70, 0x70, 0x70));
-            res["CardBrush"]      = new SolidColorBrush(Color.FromRgb(0x33, 0x33, 0x33));
-            res["InputBrush"]     = new SolidColorBrush(Color.FromRgb(0x2A, 0x2A, 0x2A));
+            // Deep navy palette inspired by Upscayl (Tailwind slate scale)
+            res["SurfaceBrush"]   = new SolidColorBrush(Color.FromRgb(0x11, 0x18, 0x27)); // #111827 slate-900
+            res["BorderBrush"]    = new SolidColorBrush(Color.FromRgb(0x2D, 0x3A, 0x4F)); // #2D3A4F
+            res["HoverBrush"]     = new SolidColorBrush(Color.FromRgb(0x1E, 0x29, 0x3B)); // #1E293B slate-800
+            res["ForegroundBrush"]= new SolidColorBrush(Color.FromRgb(0xE2, 0xE8, 0xF0)); // #E2E8F0 slate-200
+            res["MutedBrush"]     = new SolidColorBrush(Color.FromRgb(0x94, 0xA3, 0xB8)); // #94A3B8 slate-400
+            res["ShortcutFgBrush"]= new SolidColorBrush(Color.FromRgb(0x64, 0x74, 0x8B)); // #64748B slate-500
+            res["CardBrush"]      = new SolidColorBrush(Color.FromRgb(0x1E, 0x29, 0x3B)); // #1E293B slate-800
+            res["InputBrush"]     = new SolidColorBrush(Color.FromRgb(0x0F, 0x17, 0x2A)); // #0F172A slate-950
         }
         else
         {
             res["SurfaceBrush"]   = new SolidColorBrush(Colors.White);
-            res["BorderBrush"]    = new SolidColorBrush(Color.FromRgb(0xE0, 0xE0, 0xE0));
-            res["HoverBrush"]     = new SolidColorBrush(Color.FromRgb(0xF0, 0xF0, 0xF0));
-            res["ForegroundBrush"]= new SolidColorBrush(Color.FromRgb(0x1A, 0x1A, 0x1A));
-            res["MutedBrush"]     = new SolidColorBrush(Color.FromRgb(0x6E, 0x6E, 0x6E));
-            res["ShortcutFgBrush"]= new SolidColorBrush(Color.FromRgb(0x88, 0x88, 0x88));
-            res["CardBrush"]      = new SolidColorBrush(Color.FromRgb(0xF7, 0xF7, 0xF7));
+            res["BorderBrush"]    = new SolidColorBrush(Color.FromRgb(0xE2, 0xE8, 0xF0)); // #E2E8F0 slate-200
+            res["HoverBrush"]     = new SolidColorBrush(Color.FromRgb(0xF1, 0xF5, 0xF9)); // #F1F5F9 slate-100
+            res["ForegroundBrush"]= new SolidColorBrush(Color.FromRgb(0x0F, 0x17, 0x2A)); // #0F172A slate-950
+            res["MutedBrush"]     = new SolidColorBrush(Color.FromRgb(0x64, 0x74, 0x8B)); // #64748B slate-500
+            res["ShortcutFgBrush"]= new SolidColorBrush(Color.FromRgb(0x94, 0xA3, 0xB8)); // #94A3B8 slate-400
+            res["CardBrush"]      = new SolidColorBrush(Color.FromRgb(0xF1, 0xF5, 0xF9)); // #F1F5F9 slate-100
             res["InputBrush"]     = new SolidColorBrush(Colors.White);
         }
 

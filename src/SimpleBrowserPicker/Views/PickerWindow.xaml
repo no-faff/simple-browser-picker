@@ -24,8 +24,8 @@
         <StackPanel MinWidth="340" MaxWidth="480">
 
             <!-- Accent stripe at the top -->
-            <Border Height="2" Background="{DynamicResource AccentBrush}" Opacity="0.5"
-                    CornerRadius="8,8,0,0"/>
+            <Border Height="3" Background="{DynamicResource AccentBrush}" Opacity="0.5"
+                    CornerRadius="12,12,0,0"/>
 
             <!-- Header — instruction + domain + settings + close -->
             <Border Style="{StaticResource UrlStripBorder}">
