@@ -432,6 +432,20 @@ public class SettingsViewModel : ViewModelBase
         _configService.Save(_appConfig);
     }
 
+    /// <summary>Called by the view after a drag-drop reorder.</summary>
+    public void MoveRuleTo(BrowserRule dragged, BrowserRule target)
+    {
+        int from = Rules.IndexOf(dragged);
+        int to   = Rules.IndexOf(target);
+        if (from < 0 || to < 0 || from == to) return;
+
+        Rules.Move(from, to);
+
+        _appConfig.Rules.Clear();
+        foreach (var r in Rules) _appConfig.Rules.Add(r);
+        _configService.Save(_appConfig);
+    }
+
     private void SaveBrowserEdit()
     {
         if (SelectedBrowser is null) return;

@@ -17,6 +17,13 @@ public partial class SettingsWindow : Window
     private const int WM_NCHITTEST = 0x0084;
     private const int BORDER_WIDTH = 6; // px resize-grab zone
 
+    // -----------------------------------------------------------------------
+    // Rules drag-and-drop
+    // -----------------------------------------------------------------------
+
+    private System.Windows.Point _ruleDragStart;
+    private SimpleBrowserPicker.Models.BrowserRule? _draggedRule;
+
     public SettingsWindow(SettingsViewModel viewModel)
     {
         InitializeComponent();
@@ -101,5 +108,50 @@ public partial class SettingsWindow : Window
     {
         Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
         e.Handled = true;
+    }
+
+    private void RulesListBox_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        _ruleDragStart = e.GetPosition(null);
+    }
+
+    private void RulesListBox_PreviewMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+    {
+        if (e.LeftButton != System.Windows.Input.MouseButtonState.Pressed || _draggedRule is not null) return;
+
+        var pos  = e.GetPosition(null);
+        var diff = pos - _ruleDragStart;
+        if (Math.Abs(diff.X) < SystemParameters.MinimumHorizontalDragDistance &&
+            Math.Abs(diff.Y) < SystemParameters.MinimumVerticalDragDistance) return;
+
+        if (sender is System.Windows.Controls.ListBox lb && lb.SelectedItem is SimpleBrowserPicker.Models.BrowserRule rule)
+        {
+            _draggedRule = rule;
+            DragDrop.DoDragDrop(lb, rule, System.Windows.DragDropEffects.Move);
+            _draggedRule = null;
+        }
+    }
+
+    private void RulesListBox_Drop(object sender, System.Windows.DragEventArgs e)
+    {
+        if (_draggedRule is null) return;
+        if (sender is not System.Windows.Controls.ListBox lb) return;
+
+        var target = FindListBoxItem<SimpleBrowserPicker.Models.BrowserRule>(lb, e.GetPosition(lb));
+        if (target is null || target == _draggedRule) return;
+
+        ((SettingsViewModel)DataContext).MoveRuleTo(_draggedRule, target);
+    }
+
+    private static T? FindListBoxItem<T>(System.Windows.Controls.ListBox listBox, System.Windows.Point point) where T : class
+    {
+        var element = listBox.InputHitTest(point) as System.Windows.DependencyObject;
+        while (element is not null)
+        {
+            if (listBox.ItemContainerGenerator.ItemFromContainer(element) is T item)
+                return item;
+            element = System.Windows.Media.VisualTreeHelper.GetParent(element);
+        }
+        return null;
     }
 }

@@ -438,11 +438,16 @@
                                                        FontSize="12"
                                                        HorizontalAlignment="Center"/>
                                         </StackPanel>
-                                        <ListBox ItemsSource="{Binding Rules}"
+                                        <ListBox x:Name="RulesListBox"
+                                                 ItemsSource="{Binding Rules}"
                                                  SelectedItem="{Binding SelectedRule}"
                                                  BorderThickness="0"
                                                  Background="Transparent"
-                                                 MaxHeight="180">
+                                                 MaxHeight="180"
+                                                 AllowDrop="True"
+                                                 PreviewMouseLeftButtonDown="RulesListBox_PreviewMouseLeftButtonDown"
+                                                 PreviewMouseMove="RulesListBox_PreviewMouseMove"
+                                                 Drop="RulesListBox_Drop">
                                             <ListBox.ItemTemplate>
                                                 <DataTemplate>
                                                     <Grid Margin="4,4">
