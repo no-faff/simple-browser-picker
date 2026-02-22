@@ -134,6 +134,8 @@ public partial class SettingsWindow : Window
 
     private void RulesListBox_Drop(object sender, System.Windows.DragEventArgs e)
     {
+        // _draggedRule is set in PreviewMouseMove before DoDragDrop, which is synchronous.
+        // This guard is defensive — in normal WPF flow it is never null here.
         if (_draggedRule is null) return;
         if (sender is not System.Windows.Controls.ListBox lb) return;
 
@@ -174,6 +176,8 @@ public partial class SettingsWindow : Window
 
     private void BrowsersListBox_Drop(object sender, System.Windows.DragEventArgs e)
     {
+        // _draggedBrowser is set in PreviewMouseMove before DoDragDrop, which is synchronous.
+        // This guard is defensive — in normal WPF flow it is never null here.
         if (_draggedBrowser is null) return;
         if (sender is not System.Windows.Controls.ListBox lb) return;
 

@@ -7,9 +7,15 @@ namespace SimpleBrowserPicker.Models;
 public class BrowserRule
 {
     /// <summary>
-    /// Domain pattern. Examples:
-    ///   "github.com"   — matches github.com and www.github.com
-    ///   "*.google.com" — matches any subdomain of google.com
+    /// URL pattern matched against the full URL (domain + optional path).
+    /// Field is named Domain for JSON backward compatibility.
+    /// Examples:
+    ///   "github.com"          — matches github.com and www.github.com
+    ///   "*.google.com"        — matches any subdomain of google.com
+    ///   "github.com/gist"     — matches any URL under /gist (prefix)
+    ///   "github.com/gist/*"   — matches any URL under /gist (wildcard)
+    ///   "*.corp.com/internal" — subdomain wildcard + path prefix
+    /// Evaluated by <see cref="Services.UrlParser.UrlMatches"/>.
     /// </summary>
     public string Domain { get; set; } = string.Empty;
 

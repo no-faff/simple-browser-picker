@@ -37,6 +37,8 @@ public class UrlParserTests
     [InlineData("https://maps.google.com/search",   "*.google.com/maps",  false)]
     // Domain mismatch, path would match
     [InlineData("https://notgithub.com/gist/abc",   "github.com/gist",    false)]
+    // Wildcard requires a segment after the slash — use prefix pattern (no *) to also match the bare path
+    [InlineData("https://github.com/gist",          "github.com/gist/*",  false)]
     public void PathPattern_MatchesCorrectly(string url, string pattern, bool expected)
     {
         Assert.Equal(expected, UrlParser.UrlMatches(url, pattern));
