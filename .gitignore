@@ -483,3 +483,16 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 .claude/settings.local.json
+
+# Internal docs, research material and dev-only files — not for public repo
+Browser-Picker-screenshots/
+UI-screenshots/
+DESIGN-PLAN.md
+sonnet-prompt-browser-picker-(old).md
+.interface-design/
+docs/plans/
+docs/no-faff-suite.md
+
+# Claude Code config
+.claude/
+CLAUDE.md
