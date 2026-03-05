@@ -11,11 +11,6 @@
     <BooleanToVisibilityConverter     x:Key="BoolToVis"/>
 
     <!-- ====================================================================
-         Font
-         ==================================================================== -->
-    <FontFamily x:Key="Poppins">pack://application:,,,/Assets/Fonts/#Poppins</FontFamily>
-
-    <!-- ====================================================================
          Colours — light mode defaults; overridden at runtime for dark mode
          ==================================================================== -->
     <SolidColorBrush x:Key="SurfaceBrush"      Color="#FFFFFF"/>
@@ -33,13 +28,13 @@
          ==================================================================== -->
     <Style TargetType="TextBlock">
         <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
-        <Setter Property="FontFamily" Value="{StaticResource Poppins}"/>
+        <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI"/>
         <Setter Property="FontSize"   Value="13.5"/>
     </Style>
 
     <Style x:Key="UrlTextBlock" TargetType="TextBlock">
         <Setter Property="Foreground"    Value="{DynamicResource MutedBrush}"/>
-        <Setter Property="FontFamily"    Value="{StaticResource Poppins}"/>
+        <Setter Property="FontFamily"    Value="Segoe UI Variable Text, Segoe UI"/>
         <Setter Property="FontSize"      Value="15"/>
         <Setter Property="TextTrimming"  Value="CharacterEllipsis"/>
         <Setter Property="MaxWidth"      Value="440"/>
@@ -255,7 +250,7 @@
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding"     Value="12,8"/>
         <Setter Property="FontSize"    Value="12"/>
-        <Setter Property="FontFamily"  Value="{StaticResource Poppins}"/>
+        <Setter Property="FontFamily"  Value="Segoe UI"/>
         <Setter Property="MaxWidth"    Value="280"/>
         <Setter Property="HasDropShadow" Value="True"/>
         <Setter Property="Template">
@@ -319,7 +314,7 @@
     <Style x:Key="AppWindow" TargetType="Window">
         <Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
-        <Setter Property="FontFamily" Value="{StaticResource Poppins}"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
         <Setter Property="FontSize"   Value="13"/>
     </Style>
 

@@ -243,10 +243,8 @@
                                         Visibility="{Binding HasSelectedBrowser,
                                             Converter={StaticResource BoolToVis}}">
                                     <StackPanel>
-                                        <TextBlock FontSize="14" FontWeight="SemiBold"
-                                                   Margin="0,0,0,10">
-                                            <Run Text="Editing: "/><Run Text="{Binding SelectedBrowser.Name, Mode=OneWay}"/>
-                                        </TextBlock>
+                                        <TextBlock Text="Edit browser" FontSize="14" FontWeight="SemiBold"
+                                                   Margin="0,0,0,10"/>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="80"/>
