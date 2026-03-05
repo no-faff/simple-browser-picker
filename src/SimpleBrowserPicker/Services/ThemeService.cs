@@ -60,15 +60,15 @@ public static class ThemeService
     {
         if (isDark)
         {
-            // Deep navy palette inspired by Upscayl (Tailwind slate scale)
-            res["SurfaceBrush"]   = new SolidColorBrush(Color.FromRgb(0x11, 0x18, 0x27)); // #111827 slate-900
-            res["BorderBrush"]    = new SolidColorBrush(Color.FromRgb(0x2D, 0x3A, 0x4F)); // #2D3A4F
+            // Deep palette matching InstallerClean (Upscayl-inspired Tailwind slate)
+            res["SurfaceBrush"]   = new SolidColorBrush(Color.FromRgb(0x02, 0x06, 0x17)); // #020617 slate-950+
+            res["CardBrush"]      = new SolidColorBrush(Color.FromRgb(0x0F, 0x17, 0x2A)); // #0F172A slate-950
+            res["InputBrush"]     = new SolidColorBrush(Color.FromRgb(0x02, 0x06, 0x17)); // #020617 recessed below card
             res["HoverBrush"]     = new SolidColorBrush(Color.FromRgb(0x1E, 0x29, 0x3B)); // #1E293B slate-800
+            res["BorderBrush"]    = new SolidColorBrush(Color.FromRgb(0x33, 0x41, 0x55)); // #334155 slate-700
             res["ForegroundBrush"]= new SolidColorBrush(Color.FromRgb(0xE2, 0xE8, 0xF0)); // #E2E8F0 slate-200
             res["MutedBrush"]     = new SolidColorBrush(Color.FromRgb(0x94, 0xA3, 0xB8)); // #94A3B8 slate-400
             res["ShortcutFgBrush"]= new SolidColorBrush(Color.FromRgb(0x64, 0x74, 0x8B)); // #64748B slate-500
-            res["CardBrush"]      = new SolidColorBrush(Color.FromRgb(0x1E, 0x29, 0x3B)); // #1E293B slate-800
-            res["InputBrush"]     = new SolidColorBrush(Color.FromRgb(0x0F, 0x17, 0x2A)); // #0F172A slate-950
         }
         else
         {

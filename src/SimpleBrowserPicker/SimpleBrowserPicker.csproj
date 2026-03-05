@@ -15,4 +15,12 @@
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
   </PropertyGroup>
 
+
+  <ItemGroup>
+    <Resource Include="Assets\Fonts\Poppins-Regular.ttf"/>
+    <Resource Include="Assets\Fonts\Poppins-Medium.ttf"/>
+    <Resource Include="Assets\Fonts\Poppins-SemiBold.ttf"/>
+    <Resource Include="Assets\Fonts\Poppins-Bold.ttf"/>
+  </ItemGroup>
+
 </Project>
