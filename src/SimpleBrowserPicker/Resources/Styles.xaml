@@ -417,7 +417,6 @@
     <Style TargetType="TabItem">
         <Setter Property="Foreground"  Value="{DynamicResource MutedBrush}"/>
         <Setter Property="FontSize"    Value="13"/>
-        <Setter Property="Cursor"      Value="Hand"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TabItem">
