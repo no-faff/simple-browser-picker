@@ -21,7 +21,7 @@
             Style="{StaticResource PickerWindowBorder}"
             MouseDown="RootBorder_MouseDown">
 
-        <StackPanel MinWidth="500" MaxWidth="560">
+        <StackPanel MinWidth="421" MaxWidth="560">
 
             <!-- Header — instruction + domain + settings + close -->
             <Border Style="{StaticResource UrlStripBorder}">
