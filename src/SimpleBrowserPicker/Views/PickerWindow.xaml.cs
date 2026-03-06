@@ -25,7 +25,8 @@ public partial class PickerWindow : Window
         _vm.ErrorRaised += OnErrorRaised;
 
         Loaded += OnLoaded;
-        KeyDown += OnKeyDown;
+        PreviewKeyDown += OnKeyDown;
+        TextInput += OnTextInput;
         Deactivated += OnDeactivated;
     }
 
@@ -72,8 +73,14 @@ public partial class PickerWindow : Window
         {
             Left = waLeft + (waWidth  - ActualWidth)  / 2;
             Top  = waTop  + (waHeight - ActualHeight) / 2;
+
+            // Pre-select the first browser so arrow-key navigation is obvious
+            FindFirstBrowserButton()?.Focus();
         });
     }
+
+    private string _searchBuffer = "";
+    private DateTime _lastKeyTime;
 
     private void OnKeyDown(object sender, KeyEventArgs e)
     {
@@ -92,7 +99,21 @@ public partial class PickerWindow : Window
             return;
         }
 
-        // 1–9 shortcut keys
+        // Home/End — jump to first/last browser
+        if (e.Key == Key.Home)
+        {
+            FindFirstBrowserButton()?.Focus();
+            e.Handled = true;
+            return;
+        }
+        if (e.Key == Key.End)
+        {
+            FindLastBrowserButton()?.Focus();
+            e.Handled = true;
+            return;
+        }
+
+// 1–9 shortcut keys
         int index = e.Key switch
         {
             Key.D1 or Key.NumPad1 => 1,
@@ -114,6 +135,51 @@ public partial class PickerWindow : Window
         }
     }
 
+    private void OnTextInput(object sender, TextCompositionEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e.Text) || char.IsControl(e.Text[0]))
+            return;
+
+        // Reset search buffer if more than 800ms since last keystroke
+        var now = DateTime.UtcNow;
+        if ((now - _lastKeyTime).TotalMilliseconds > 800)
+            _searchBuffer = "";
+        _lastKeyTime = now;
+
+        _searchBuffer += e.Text;
+        FocusBrowserBySearch(_searchBuffer);
+        e.Handled = true;
+    }
+
+    private void FocusBrowserBySearch(string search)
+    {
+        var buttons = GetAllBrowserButtons();
+        var match = buttons.FirstOrDefault(b =>
+            b.Tag is SimpleBrowserPicker.Models.Browser browser &&
+            browser.Name.StartsWith(search, StringComparison.OrdinalIgnoreCase));
+        match?.Focus();
+    }
+
+    private List<Button> GetAllBrowserButtons()
+    {
+        var list = new List<Button>();
+        CollectBrowserButtons(RootBorder, list);
+        return list;
+    }
+
+    private static void CollectBrowserButtons(DependencyObject parent, List<Button> list)
+    {
+        int count = System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent);
+        for (int i = 0; i < count; i++)
+        {
+            var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+            if (child is Button btn && btn.Tag is SimpleBrowserPicker.Models.Browser)
+                list.Add(btn);
+            else
+                CollectBrowserButtons(child, list);
+        }
+    }
+
     private void MoveFocus(FocusNavigationDirection direction)
     {
         if (Keyboard.FocusedElement is Button focused)
@@ -129,21 +195,14 @@ public partial class PickerWindow : Window
 
     private Button? FindFirstBrowserButton()
     {
-        return FindBrowserButton(RootBorder);
+        var buttons = GetAllBrowserButtons();
+        return buttons.Count > 0 ? buttons[0] : null;
     }
 
-    private static Button? FindBrowserButton(DependencyObject parent)
+    private Button? FindLastBrowserButton()
     {
-        int count = System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent);
-        for (int i = 0; i < count; i++)
-        {
-            var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
-            if (child is Button btn && btn.Tag is SimpleBrowserPicker.Models.Browser)
-                return btn;
-            var result = FindBrowserButton(child);
-            if (result is not null) return result;
-        }
-        return null;
+        var buttons = GetAllBrowserButtons();
+        return buttons.Count > 0 ? buttons[^1] : null;
     }
 
     private void BrowserButton_MouseEnter(object sender, MouseEventArgs e)

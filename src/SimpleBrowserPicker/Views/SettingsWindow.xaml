@@ -21,21 +21,14 @@
         <Border CornerRadius="12" ClipToBounds="True">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>  <!-- accent stripe -->
                     <RowDefinition Height="Auto"/>  <!-- title bar -->
                     <RowDefinition Height="*"/>     <!-- content -->
                 </Grid.RowDefinitions>
 
                 <!-- ============================================================
-                     Accent stripe
-                     ============================================================ -->
-                <Border Grid.Row="0" Height="3"
-                        Background="{DynamicResource AccentBrush}"/>
-
-                <!-- ============================================================
                      Custom title bar with pill tabs
                      ============================================================ -->
-                <Border Grid.Row="1" Padding="20,12,20,12"
+                <Border Grid.Row="0" Padding="20,12,20,12"
                         Background="Transparent"
                         MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
                     <Grid>
@@ -76,7 +69,7 @@
                 <!-- ============================================================
                      Tab content (native tab strip hidden)
                      ============================================================ -->
-                <TabControl x:Name="MainTabs" Grid.Row="2"
+                <TabControl x:Name="MainTabs" Grid.Row="1"
                             Background="Transparent"
                             BorderThickness="0"
                             Padding="0">

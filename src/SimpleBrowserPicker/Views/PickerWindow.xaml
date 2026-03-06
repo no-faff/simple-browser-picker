@@ -21,19 +21,17 @@
             Style="{StaticResource PickerWindowBorder}"
             MouseDown="RootBorder_MouseDown">
 
-        <StackPanel MinWidth="340" MaxWidth="480">
-
-            <!-- Accent stripe at the top -->
-            <Border Height="3" Background="{DynamicResource AccentBrush}" Opacity="0.5"
-                    CornerRadius="12,12,0,0"/>
+        <StackPanel MinWidth="500" MaxWidth="560">
 
             <!-- Header — instruction + domain + settings + close -->
             <Border Style="{StaticResource UrlStripBorder}">
-                <DockPanel>
+                <DockPanel LastChildFill="True">
                     <Button DockPanel.Dock="Right" Style="{StaticResource CloseButton}"
-                            Click="CloseButton_Click" Margin="4,0,0,0"/>
+                            Click="CloseButton_Click" Margin="4,0,0,0"
+                            VerticalAlignment="Center"/>
                     <Button DockPanel.Dock="Right" Style="{StaticResource CloseButton}"
                             Click="SettingsButton_Click" Margin="4,0,0,0"
+                            VerticalAlignment="Center"
                             ToolTip="Settings">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -57,6 +55,7 @@
                         </Button.Template>
                     </Button>
                     <TextBlock Style="{StaticResource UrlTextBlock}"
+                               VerticalAlignment="Center"
                                ToolTip="{Binding DisplayUrl}">
                         <Run Text="Open "
                              Foreground="{DynamicResource MutedBrush}"/><!--

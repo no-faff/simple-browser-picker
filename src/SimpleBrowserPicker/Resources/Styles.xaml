@@ -58,7 +58,7 @@
         <Setter Property="BorderBrush"      Value="{DynamicResource BorderBrush}"/>
         <Setter Property="BorderThickness"  Value="1"/>
         <Setter Property="CornerRadius"     Value="12"/>
-        <Setter Property="Padding"          Value="0,6,0,10"/>
+        <Setter Property="Padding"          Value="0,0,0,10"/>
         <Setter Property="Effect">
             <Setter.Value>
                 <DropShadowEffect BlurRadius="28" ShadowDepth="6"
@@ -68,7 +68,7 @@
     </Style>
 
     <Style x:Key="UrlStripBorder" TargetType="Border">
-        <Setter Property="Padding"          Value="16,12,16,12"/>
+        <Setter Property="Padding"          Value="16,10,16,12"/>
         <Setter Property="BorderBrush"      Value="{DynamicResource BorderBrush}"/>
         <Setter Property="BorderThickness"  Value="0,0,0,1"/>
     </Style>
@@ -179,8 +179,7 @@
     </Style>
 
     <!-- ====================================================================
-         Toggle switch — Upscayl-style on/off toggle (replaces checkboxes
-         in settings for a cleaner, more modern look)
+         Toggle switch — on/off toggle for settings
          ==================================================================== -->
     <Style x:Key="ToggleSwitch" TargetType="CheckBox">
         <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
@@ -242,7 +241,7 @@
     </Style>
 
     <!-- ====================================================================
-         Tooltip — accent-tinted, like Upscayl/Vibe
+         Tooltip — accent-tinted
          ==================================================================== -->
     <Style TargetType="ToolTip">
         <Setter Property="Background"  Value="{DynamicResource AccentBrush}"/>
