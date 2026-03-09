@@ -69,6 +69,7 @@ public static class ThemeService
             res["ShortcutFgBrush"]= new SolidColorBrush(Color.FromRgb(0x64, 0x74, 0x8B)); // #64748B slate-500
             res["CardBrush"]      = new SolidColorBrush(Color.FromRgb(0x11, 0x18, 0x27)); // #111827 slate-900
             res["InputBrush"]     = new SolidColorBrush(Color.FromRgb(0x0F, 0x17, 0x2A)); // #0F172A slate-950
+            res["DangerBrush"]    = new SolidColorBrush(Color.FromRgb(0xEF, 0x44, 0x44)); // #EF4444 red-500
         }
         else
         {
@@ -80,6 +81,7 @@ public static class ThemeService
             res["ShortcutFgBrush"]= new SolidColorBrush(Color.FromRgb(0x94, 0xA3, 0xB8)); // #94A3B8 slate-400
             res["CardBrush"]      = new SolidColorBrush(Color.FromRgb(0xF1, 0xF5, 0xF9)); // #F1F5F9 slate-100
             res["InputBrush"]     = new SolidColorBrush(Colors.White);
+            res["DangerBrush"]    = new SolidColorBrush(Color.FromRgb(0xDC, 0x26, 0x26)); // #DC2626 red-600
         }
 
         res["AccentBrush"] = new SolidColorBrush(accent);

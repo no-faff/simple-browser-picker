@@ -22,6 +22,7 @@
     <SolidColorBrush x:Key="ShortcutFgBrush"    Color="#94A3B8"/>
     <SolidColorBrush x:Key="CardBrush"         Color="#F1F5F9"/>
     <SolidColorBrush x:Key="InputBrush"        Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="DangerBrush"       Color="#DC2626"/>
 
     <!-- ====================================================================
          Typography

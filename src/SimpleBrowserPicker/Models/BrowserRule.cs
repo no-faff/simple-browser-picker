@@ -1,3 +1,6 @@
+using System.IO;
+using System.Text.Json.Serialization;
+
 namespace SimpleBrowserPicker.Models;
 
 /// <summary>
@@ -30,4 +33,11 @@ public class BrowserRule
     /// Empty string for browsers without profile support.
     /// </summary>
     public string ProfileArgs { get; set; } = string.Empty;
+
+    /// <summary>
+    /// True when the rule points to a browser exe that no longer exists on disk.
+    /// Not serialised. Set by the settings view model when loading rules.
+    /// </summary>
+    [JsonIgnore]
+    public bool IsStale { get; set; }
 }
