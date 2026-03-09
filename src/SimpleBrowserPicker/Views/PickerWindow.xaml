@@ -76,7 +76,7 @@
                 <CheckBox IsChecked="{Binding AlwaysUseChecked, Mode=TwoWay}"
                           Style="{StaticResource AlwaysUseCheckBox}"
                           Visibility="{Binding AlwaysUseLabelVisible, Converter={StaticResource BoolToVis}}"
-                          Margin="0,8,0,0">
+                          Margin="0,12,0,4">
                     <TextBlock Text="{Binding AlwaysUseLabel}"
                                TextTrimming="CharacterEllipsis"
                                MaxWidth="460"/>
