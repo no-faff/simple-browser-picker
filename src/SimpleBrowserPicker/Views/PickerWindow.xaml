@@ -23,15 +23,15 @@
 
         <StackPanel MinWidth="421" MaxWidth="560">
 
-            <!-- Header — instruction + domain + settings + close -->
+            <!-- Header — domain + settings + close -->
             <Border Style="{StaticResource UrlStripBorder}">
                 <DockPanel LastChildFill="True">
                     <Button DockPanel.Dock="Right" Style="{StaticResource CloseButton}"
                             Click="CloseButton_Click" Margin="4,0,0,0"
-                            VerticalAlignment="Center"/>
+                            VerticalAlignment="Top"/>
                     <Button DockPanel.Dock="Right" Style="{StaticResource CloseButton}"
                             Click="SettingsButton_Click" Margin="4,0,0,0"
-                            VerticalAlignment="Center"
+                            VerticalAlignment="Top"
                             ToolTip="Settings">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -54,53 +54,30 @@
                             </ControlTemplate>
                         </Button.Template>
                     </Button>
-                    <TextBlock Style="{StaticResource UrlTextBlock}"
-                               VerticalAlignment="Center"
-                               ToolTip="{Binding DisplayUrl}">
-                        <Run Text="Open "
-                             Foreground="{DynamicResource MutedBrush}"/><!--
-                     --><Run Text="{Binding UrlDomain, Mode=OneTime}"
-                             FontWeight="SemiBold"
-                             Foreground="{DynamicResource ForegroundBrush}"/><!--
-                     --><Run Text=" in…"
-                             Foreground="{DynamicResource MutedBrush}"/>
-                    </TextBlock>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding UrlDomain, Mode=OneTime}"
+                                   Style="{StaticResource DomainHeroText}"
+                                   TextTrimming="CharacterEllipsis"
+                                   MaxWidth="440"
+                                   ToolTip="{Binding DisplayUrl}"/>
+                        <!-- Redirect info — shown when SafeLinks/redirect was unwrapped -->
+                        <TextBlock Visibility="{Binding WasRedirected, Converter={StaticResource BoolToVis}}"
+                                   Margin="0,2,0,0" FontSize="11.5"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding RawUrl}">
+                            <Run Text="↳ unwrapped from redirect"
+                                 Foreground="{DynamicResource MutedBrush}"/>
+                        </TextBlock>
+                    </StackPanel>
                 </DockPanel>
             </Border>
 
-            <!-- Redirect info — shown when SafeLinks/redirect was unwrapped -->
-            <TextBlock Visibility="{Binding WasRedirected, Converter={StaticResource BoolToVis}}"
-                       Margin="16,6,16,0" FontSize="11"
-                       TextTrimming="CharacterEllipsis"
-                       ToolTip="{Binding RawUrl}">
-                <Run Text="↳ Unwrapped from redirect"
-                     Foreground="{DynamicResource MutedBrush}"/>
-            </TextBlock>
-
-            <!-- Checkboxes — above the list so they're always visible -->
-            <StackPanel Margin="16,10,16,6">
-                <StackPanel Orientation="Horizontal"
-                            Visibility="{Binding AlwaysUseLabelVisible, Converter={StaticResource BoolToVis}}"
-                            Margin="0,0,0,6">
-                    <CheckBox IsChecked="{Binding AlwaysUseChecked, Mode=TwoWay}"
-                              Content="{Binding AlwaysUseLabel}"
-                              Style="{StaticResource AlwaysUseCheckBox}"/>
-                    <TextBlock Style="{StaticResource InfoHint}"
-                               ToolTipService.InitialShowDelay="150"
-                               ToolTip="Tick this, then click a browser. Next time you open a link to this site it will go straight there — no picker."
-                               MouseLeftButtonDown="InfoHint_Click"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal"
-                            Visibility="{Binding ShowSetAsFallback, Converter={StaticResource BoolToVis}}"
-                            Margin="0,0,0,2">
-                    <CheckBox IsChecked="{Binding SetAsFallbackChecked, Mode=TwoWay}"
-                              Content="{Binding SetAsFallbackLabel}"
-                              Style="{StaticResource AlwaysUseCheckBox}"/>
-                    <TextBlock Style="{StaticResource InfoHint}"
-                               ToolTipService.InitialShowDelay="150"
-                               ToolTip="Tick this, then click a browser. All links will go there silently unless a rule sends them elsewhere."
-                               MouseLeftButtonDown="InfoHint_Click"/>
-                </StackPanel>
+            <!-- Remember checkbox — above the list so it's always visible -->
+            <StackPanel Margin="16,10,16,6"
+                        Visibility="{Binding AlwaysUseLabelVisible, Converter={StaticResource BoolToVis}}">
+                <CheckBox IsChecked="{Binding AlwaysUseChecked, Mode=TwoWay}"
+                          Content="{Binding AlwaysUseLabel}"
+                          Style="{StaticResource AlwaysUseCheckBox}"/>
             </StackPanel>
 
             <!-- Separator -->

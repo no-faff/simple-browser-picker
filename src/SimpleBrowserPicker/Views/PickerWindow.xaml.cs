@@ -228,19 +228,6 @@ public partial class PickerWindow : Window
         Close();
     }
 
-    private void InfoHint_Click(object sender, MouseButtonEventArgs e)
-    {
-        if (sender is FrameworkElement el && el.ToolTip is string tip)
-        {
-            el.ToolTip = new System.Windows.Controls.ToolTip
-            {
-                Content = tip,
-                PlacementTarget = el,
-                IsOpen = true,
-            };
-        }
-    }
-
     private void SettingsButton_Click(object sender, RoutedEventArgs e)
     {
         _suppressDeactivateClose = true;
