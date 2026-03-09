@@ -65,7 +65,7 @@ public partial class App : Application
                     Shutdown();
                     return;
                 }
-                catch { } // Fall through to normal routing if Office app not found
+                catch (Exception ex) { LogException(ex); } // Fall through to normal routing
             }
 
             // Check for a matching rule — if found, launch immediately without showing the picker
@@ -141,8 +141,9 @@ public partial class App : Application
             });
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            LogException(ex);
             return false;
         }
     }
@@ -165,8 +166,9 @@ public partial class App : Application
             });
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            LogException(ex);
             return false;
         }
     }
@@ -254,7 +256,11 @@ public partial class App : Application
         e.SetObserved();
     }
 
-    private static void LogException(Exception? ex)
+    /// <summary>
+    /// Logs an exception to %LOCALAPPDATA%\SimpleBrowserPicker\error.log.
+    /// Safe to call from anywhere; silently does nothing if logging fails.
+    /// </summary>
+    internal static void LogException(Exception? ex)
     {
         try
         {

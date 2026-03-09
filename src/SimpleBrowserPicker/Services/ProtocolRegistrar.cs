@@ -87,8 +87,9 @@ public class ProtocolRegistrar
 
             return ParseExePath(command);
         }
-        catch
+        catch (Exception ex)
         {
+            App.LogException(ex);
             return null;
         }
     }
@@ -121,6 +122,6 @@ public class ProtocolRegistrar
     private static void DeleteKey(string keyPath)
     {
         try { Registry.CurrentUser.DeleteSubKeyTree(keyPath, throwOnMissingSubKey: false); }
-        catch { /* best effort */ }
+        catch (Exception ex) { App.LogException(ex); }
     }
 }

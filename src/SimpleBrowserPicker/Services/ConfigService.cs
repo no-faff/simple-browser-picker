@@ -39,20 +39,26 @@ public class ConfigService
             string json = File.ReadAllText(_configPath);
             return JsonSerializer.Deserialize<AppConfig>(json, JsonOptions) ?? new AppConfig();
         }
-        catch
+        catch (Exception ex)
         {
+            App.LogException(ex);
             return new AppConfig();
         }
     }
 
     /// <summary>
     /// Saves config to disk, creating the directory if needed.
+    /// Writes to a temp file first, then renames, so a crash mid-write
+    /// can't corrupt the config.
     /// </summary>
     public void Save(AppConfig config)
     {
         Directory.CreateDirectory(ConfigDir);
         string json = JsonSerializer.Serialize(config, JsonOptions);
-        File.WriteAllText(_configPath, json);
+
+        string tempPath = _configPath + ".tmp";
+        File.WriteAllText(tempPath, json);
+        File.Move(tempPath, _configPath, overwrite: true);
     }
 
     /// <summary>Whether a config file already exists on disk.</summary>

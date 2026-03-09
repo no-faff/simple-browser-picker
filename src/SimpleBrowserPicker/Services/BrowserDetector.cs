@@ -230,8 +230,9 @@ public class BrowserDetector
                 Icon           = icon,
             }).ToList();
         }
-        catch
+        catch (Exception ex)
         {
+            App.LogException(ex);
             return [];
         }
     }
@@ -319,8 +320,9 @@ public class BrowserDetector
                 System.Windows.Int32Rect.Empty,
                 BitmapSizeOptions.FromEmptyOptions());
         }
-        catch
+        catch (Exception ex)
         {
+            App.LogException(ex);
             return null;
         }
     }
