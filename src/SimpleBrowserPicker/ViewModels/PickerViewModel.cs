@@ -37,7 +37,7 @@ public class PickerViewModel : ViewModelBase
     /// <summary>True when the URL was unwrapped from a SafeLinks/redirect wrapper.</summary>
     public bool WasRedirected { get; }
 
-    public string AlwaysUseLabel => $"_Remember my choice for {_domain}";
+    public string AlwaysUseLabel => $"Remember my choice for {_domain}";
 
     public bool AlwaysUseLabelVisible => !string.IsNullOrEmpty(_domain);
 

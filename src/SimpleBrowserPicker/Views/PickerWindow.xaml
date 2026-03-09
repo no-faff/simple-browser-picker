@@ -23,8 +23,9 @@
 
         <StackPanel MinWidth="421" MaxWidth="560">
 
-            <!-- Header — domain + settings + close -->
+            <!-- Header — domain + checkbox on CardBrush background -->
             <Border Style="{StaticResource UrlStripBorder}">
+                <StackPanel>
                 <DockPanel LastChildFill="True">
                     <Button DockPanel.Dock="Right" Style="{StaticResource CloseButton}"
                             Click="CloseButton_Click" Margin="4,0,0,0"
@@ -70,18 +71,18 @@
                         </TextBlock>
                     </StackPanel>
                 </DockPanel>
-            </Border>
 
-            <!-- Remember checkbox — above the list so it's always visible -->
-            <StackPanel Margin="16,10,16,6"
-                        Visibility="{Binding AlwaysUseLabelVisible, Converter={StaticResource BoolToVis}}">
+                <!-- Remember checkbox -->
                 <CheckBox IsChecked="{Binding AlwaysUseChecked, Mode=TwoWay}"
-                          Content="{Binding AlwaysUseLabel}"
-                          Style="{StaticResource AlwaysUseCheckBox}"/>
-            </StackPanel>
-
-            <!-- Separator -->
-            <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="16,0"/>
+                          Style="{StaticResource AlwaysUseCheckBox}"
+                          Visibility="{Binding AlwaysUseLabelVisible, Converter={StaticResource BoolToVis}}"
+                          Margin="0,8,0,0">
+                    <TextBlock Text="{Binding AlwaysUseLabel}"
+                               TextTrimming="CharacterEllipsis"
+                               MaxWidth="460"/>
+                </CheckBox>
+                </StackPanel>
+            </Border>
 
             <!-- Browser list -->
             <ScrollViewer x:Name="BrowserScroller"
