@@ -84,9 +84,15 @@ public partial class App : Application
                 }
             }
 
-            // No rule matched — try the fallback browser (unless "always ask" is on)
+            // No rule matched - try the fallback browser (unless "always ask" is on).
+            // Skip if the fallback browser/profile no longer exists.
+            bool fallbackExists = _browsers.Any(b =>
+                string.Equals(b.ExePath, _config.FallbackBrowserExePath, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(b.AdditionalArgs ?? "", _config.FallbackProfileArgs ?? "", StringComparison.OrdinalIgnoreCase));
+
             if (!_config.AlwaysAsk &&
                 !string.IsNullOrEmpty(_config.FallbackBrowserExePath) &&
+                fallbackExists &&
                 LaunchFallback(url))
             {
                 Shutdown();
