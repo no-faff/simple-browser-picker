@@ -14,6 +14,7 @@ public partial class PickerWindow : Window
 {
     private readonly PickerViewModel _vm;
     private bool _suppressDeactivateClose;
+    private bool _isClosing;
 
     public PickerWindow(PickerViewModel viewModel)
     {
@@ -21,7 +22,7 @@ public partial class PickerWindow : Window
         _vm = viewModel;
         DataContext = _vm;
 
-        _vm.CloseRequested += (_, _) => Close();
+        _vm.CloseRequested += (_, _) => { _isClosing = true; Close(); };
         _vm.ErrorRaised += OnErrorRaised;
 
         Loaded += OnLoaded;
@@ -40,8 +41,11 @@ public partial class PickerWindow : Window
 
     private void OnDeactivated(object? sender, EventArgs e)
     {
-        if (!_suppressDeactivateClose)
+        if (!_suppressDeactivateClose && !_isClosing)
+        {
+            _isClosing = true;
             Close();
+        }
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
@@ -86,6 +90,7 @@ public partial class PickerWindow : Window
     {
         if (e.Key == Key.Escape)
         {
+            _isClosing = true;
             Close();
             e.Handled = true;
             return;
@@ -217,7 +222,11 @@ public partial class PickerWindow : Window
             _vm.SelectedBrowser = browser;
     }
 
-    private void CloseButton_Click(object sender, RoutedEventArgs e) => Close();
+    private void CloseButton_Click(object sender, RoutedEventArgs e)
+    {
+        _isClosing = true;
+        Close();
+    }
 
     private void InfoHint_Click(object sender, MouseButtonEventArgs e)
     {
