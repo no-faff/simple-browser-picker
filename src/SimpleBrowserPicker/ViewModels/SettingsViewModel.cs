@@ -464,6 +464,11 @@ public class SettingsViewModel : ViewModelBase
         string newName = EditBrowserName.Trim();
         string newArgs = EditBrowserArgs.Trim();
 
+        // Capture the original args BEFORE modifying the browser object,
+        // otherwise the override lookup below compares against the new value
+        // and never finds the existing override (creating duplicates).
+        string originalArgs = SelectedBrowser.AdditionalArgs;
+
         // Update the in-memory browser object
         SelectedBrowser.Name           = newName;
         SelectedBrowser.AdditionalArgs = newArgs;
@@ -471,7 +476,7 @@ public class SettingsViewModel : ViewModelBase
         // Save an override in config so changes persist across restarts
         var existing = _appConfig.BrowserOverrides.FirstOrDefault(o =>
             string.Equals(o.ExePath, SelectedBrowser.ExePath, StringComparison.OrdinalIgnoreCase) &&
-            string.Equals(o.OriginalArgs, SelectedBrowser.AdditionalArgs, StringComparison.OrdinalIgnoreCase));
+            string.Equals(o.OriginalArgs, originalArgs, StringComparison.OrdinalIgnoreCase));
 
         if (existing is not null)
         {
@@ -483,7 +488,7 @@ public class SettingsViewModel : ViewModelBase
             _appConfig.BrowserOverrides.Add(new BrowserOverride
             {
                 ExePath       = SelectedBrowser.ExePath,
-                OriginalArgs  = SelectedBrowser.AdditionalArgs,
+                OriginalArgs  = originalArgs,
                 NameOverride  = newName,
                 ArgsOverride  = newArgs,
             });
@@ -668,7 +673,7 @@ public class SettingsViewModel : ViewModelBase
                 UseShellExecute = true,
             });
         }
-        catch { }
+        catch (Exception ex) { App.LogException(ex); }
     }
 
     // -----------------------------------------------------------------------
