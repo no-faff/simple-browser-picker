@@ -67,6 +67,7 @@ public class SettingsViewModel : ViewModelBase
             if (SetField(ref _selectedBrowser, value))
             {
                 OnPropertyChanged(nameof(HasSelectedBrowser));
+                OnPropertyChanged(nameof(EditBrowserHeader));
                 if (value is not null)
                 {
                     EditBrowserName = value.Name;
@@ -78,6 +79,9 @@ public class SettingsViewModel : ViewModelBase
     }
 
     public bool HasSelectedBrowser => SelectedBrowser is not null;
+
+    public string EditBrowserHeader =>
+        SelectedBrowser is not null ? $"Editing: {SelectedBrowser.Name}" : "Edit browser";
 
     private string _editBrowserName = string.Empty;
     public string EditBrowserName
@@ -524,7 +528,13 @@ public class SettingsViewModel : ViewModelBase
     {
         Rules.Clear();
         foreach (var r in _appConfig.Rules)
+        {
+            // Flag rules pointing to a browser that's no longer installed.
+            // Exception rules (no browser) are never stale.
+            r.IsStale = !string.IsNullOrEmpty(r.BrowserExePath) &&
+                        !System.IO.File.Exists(r.BrowserExePath);
             Rules.Add(r);
+        }
     }
 
     private void AddRule()

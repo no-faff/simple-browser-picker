@@ -236,7 +236,7 @@
                                         Visibility="{Binding HasSelectedBrowser,
                                             Converter={StaticResource BoolToVis}}">
                                     <StackPanel>
-                                        <TextBlock Text="Edit browser" FontSize="14" FontWeight="SemiBold"
+                                        <TextBlock Text="{Binding EditBrowserHeader}" FontSize="14" FontWeight="SemiBold"
                                                    Margin="0,0,0,10"/>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
@@ -460,8 +460,21 @@
                                                                    HorizontalAlignment="Center"
                                                                    Foreground="{DynamicResource AccentBrush}"
                                                                    FontSize="14"/>
-                                                        <TextBlock Grid.Column="2" Text="{Binding BrowserName}"
-                                                                   FontSize="13"/>
+                                                        <TextBlock Grid.Column="2" FontSize="13">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Text" Value="{Binding BrowserName}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsStale}" Value="True">
+                                                                            <Setter Property="Text"
+                                                                                    Value="{Binding BrowserName, StringFormat='{}{0} (not found)'}"/>
+                                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                                            <Setter Property="ToolTip" Value="This browser is no longer installed at the saved path"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
                                                     </Grid>
                                                 </DataTemplate>
                                             </ListBox.ItemTemplate>
