@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Windows;
+using System.Windows.Threading;
 using Application = System.Windows.Application;
 using SimpleBrowserPicker.Models;
 using SimpleBrowserPicker.Services;
@@ -17,6 +19,11 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        // Global exception handlers — log and show a message instead of silently crashing
+        DispatcherUnhandledException += OnDispatcherUnhandledException;
+        AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnhandledException;
+        TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
 
         // Apply Windows theme (light/dark + accent colour)
         ThemeService.Apply(this);
@@ -220,5 +227,69 @@ public partial class App : Application
             ShowPicker(url);
         };
         window.Show();
+    }
+
+    // -----------------------------------------------------------------------
+    // Global error handling
+    // -----------------------------------------------------------------------
+
+    private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+    {
+        LogException(e.Exception);
+        ShowErrorMessage(e.Exception);
+        e.Handled = true;
+        Shutdown(1);
+    }
+
+    private void OnAppDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        var ex = e.ExceptionObject as Exception;
+        LogException(ex);
+        ShowErrorMessage(ex);
+    }
+
+    private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        LogException(e.Exception);
+        e.SetObserved();
+    }
+
+    private static void LogException(Exception? ex)
+    {
+        try
+        {
+            var folder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "SimpleBrowserPicker");
+            Directory.CreateDirectory(folder);
+
+            var logPath = Path.Combine(folder, "error.log");
+            var entry   = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] {ex}\n\n";
+            File.AppendAllText(logPath, entry);
+        }
+        catch
+        {
+            // Nothing we can do if logging itself fails
+        }
+    }
+
+    private static void ShowErrorMessage(Exception? ex)
+    {
+        try
+        {
+            var message = "Simple Browser Picker ran into an unexpected error and needs to close.\n\n"
+                        + "Details have been saved to:\n"
+                        + Path.Combine(
+                            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                            "SimpleBrowserPicker", "error.log")
+                        + "\n\n"
+                        + (ex?.Message ?? "Unknown error");
+
+            System.Windows.MessageBox.Show(message, "Simple Browser Picker", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+        catch
+        {
+            // Can't show UI — nothing more to do
+        }
     }
 }
