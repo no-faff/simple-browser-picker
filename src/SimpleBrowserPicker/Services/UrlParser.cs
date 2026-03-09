@@ -13,6 +13,14 @@ public static class UrlParser
     /// </summary>
     public static string Unwrap(string rawUrl)
     {
+        return Unwrap(rawUrl, maxDepth: 10);
+    }
+
+    private static string Unwrap(string rawUrl, int maxDepth)
+    {
+        if (maxDepth <= 0)
+            return rawUrl;
+
         if (!Uri.TryCreate(rawUrl, UriKind.Absolute, out Uri? uri))
             return rawUrl;
 
@@ -21,17 +29,16 @@ public static class UrlParser
         {
             string? inner = HttpUtility.ParseQueryString(uri.Query)["url"];
             if (!string.IsNullOrWhiteSpace(inner))
-                return Unwrap(inner); // recurse in case of double-wrapping
+                return Unwrap(inner, maxDepth - 1);
         }
 
-        // Google redirect
-        if ((uri.Host.EndsWith("google.com", StringComparison.OrdinalIgnoreCase) ||
-             uri.Host.EndsWith("google.co.uk", StringComparison.OrdinalIgnoreCase)) &&
+        // Google redirect (all regional variants: google.com, google.co.uk, google.de, etc.)
+        if (uri.Host.Contains("google.", StringComparison.OrdinalIgnoreCase) &&
             uri.AbsolutePath == "/url")
         {
             string? inner = HttpUtility.ParseQueryString(uri.Query)["q"];
             if (!string.IsNullOrWhiteSpace(inner))
-                return Unwrap(inner);
+                return Unwrap(inner, maxDepth - 1);
         }
 
         return rawUrl;
