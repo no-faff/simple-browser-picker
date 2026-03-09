@@ -119,8 +119,25 @@ public partial class App : Application
 
         foreach (var rule in _config.Rules)
         {
-            if (UrlParser.UrlMatches(url, rule.Domain))
+            if (!UrlParser.UrlMatches(url, rule.Domain))
+                continue;
+
+            // Exception rules (no browser = always show picker) are always valid
+            if (string.IsNullOrEmpty(rule.BrowserExePath))
                 return rule;
+
+            // Check the target browser/profile still exists in the detected list.
+            // If the user deleted a profile or uninstalled a browser, skip the rule
+            // so the picker shows and they can choose again.
+            bool targetExists = _browsers.Any(b =>
+                string.Equals(b.ExePath, rule.BrowserExePath, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(b.AdditionalArgs ?? "", rule.ProfileArgs ?? "", StringComparison.OrdinalIgnoreCase));
+
+            if (targetExists)
+                return rule;
+
+            // Target gone — don't try other rules, just fall through to the picker
+            return null;
         }
         return null;
     }

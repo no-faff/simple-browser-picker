@@ -529,10 +529,13 @@ public class SettingsViewModel : ViewModelBase
         Rules.Clear();
         foreach (var r in _appConfig.Rules)
         {
-            // Flag rules pointing to a browser that's no longer installed.
-            // Exception rules (no browser) are never stale.
+            // Flag rules whose target browser/profile no longer exists.
+            // This catches uninstalled browsers AND deleted profiles equally.
+            // Exception rules (no browser = always show picker) are never stale.
             r.IsStale = !string.IsNullOrEmpty(r.BrowserExePath) &&
-                        !System.IO.File.Exists(r.BrowserExePath);
+                        !Browsers.Any(b =>
+                            string.Equals(b.ExePath, r.BrowserExePath, StringComparison.OrdinalIgnoreCase) &&
+                            string.Equals(b.AdditionalArgs ?? "", r.ProfileArgs ?? "", StringComparison.OrdinalIgnoreCase));
             Rules.Add(r);
         }
     }
