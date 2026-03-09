@@ -33,8 +33,6 @@ public class PickerViewModel : ViewModelBase
     public string DisplayUrl  { get; }
     public string RawUrl      { get; }
     public string UrlDomain   { get; }
-    public string UrlScheme   { get; }
-    public string UrlSuffix   { get; }
 
     /// <summary>True when the URL was unwrapped from a SafeLinks/redirect wrapper.</summary>
     public bool WasRedirected { get; }
@@ -74,19 +72,6 @@ public class PickerViewModel : ViewModelBase
         WasRedirected = !string.Equals(url, _url, StringComparison.OrdinalIgnoreCase);
         DisplayUrl = _url;
         UrlDomain  = _domain;
-
-        // Split URL into scheme, domain, and suffix for display emphasis
-        if (Uri.TryCreate(_url, UriKind.Absolute, out var uri))
-        {
-            UrlScheme = uri.Scheme + "://";
-            UrlSuffix = uri.PathAndQuery + uri.Fragment;
-            if (UrlSuffix == "/") UrlSuffix = string.Empty;
-        }
-        else
-        {
-            UrlScheme = string.Empty;
-            UrlSuffix = string.Empty;
-        }
 
         // Filter out our own app and Internet Explorer
         string ownExe = Environment.ProcessPath ?? string.Empty;
