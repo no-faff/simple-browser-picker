@@ -32,7 +32,7 @@ public static class ThemeService
             if (value is int i)
                 return i == 0;
         }
-        catch { }
+        catch (Exception ex) { App.LogException(ex); }
         return false;
     }
 
@@ -52,7 +52,7 @@ public static class ThemeService
                 return Color.FromRgb(r, g, b);
             }
         }
-        catch { }
+        catch (Exception ex) { App.LogException(ex); }
         return Color.FromRgb(0x00, 0x78, 0xD4); // Windows blue fallback
     }
 
