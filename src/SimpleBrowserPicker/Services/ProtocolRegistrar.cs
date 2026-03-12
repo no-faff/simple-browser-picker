@@ -13,10 +13,14 @@ public class ProtocolRegistrar
     private const string AppDesc       = "Choose which browser opens each link";
     private const string RegAppName    = "SimpleBrowserPicker";
     private const string ProgId        = "SimpleBrowserPickerURL";
+    private const string FileProgId    = "SimpleBrowserPickerHTML";
 
     private const string StartMenuPath = @"SOFTWARE\Clients\StartMenuInternet\" + RegAppName;
     private const string ClassesPath   = @"SOFTWARE\Classes\" + ProgId;
+    private const string FileClassesPath = @"SOFTWARE\Classes\" + FileProgId;
     private const string RegisteredAppsPath = @"SOFTWARE\RegisteredApplications";
+
+    private static readonly string[] FileExtensions = [".htm", ".html"];
 
     /// <summary>
     /// Registers the app as a browser. <paramref name="exePath"/> should be
@@ -32,12 +36,18 @@ public class ProtocolRegistrar
         SetValue($@"{StartMenuPath}\Capabilities", "ApplicationName", AppName);
         SetValue($@"{StartMenuPath}\Capabilities\URLAssociations", "http",  ProgId);
         SetValue($@"{StartMenuPath}\Capabilities\URLAssociations", "https", ProgId);
+        foreach (string ext in FileExtensions)
+            SetValue($@"{StartMenuPath}\Capabilities\FileAssociations", ext, FileProgId);
         SetValue($@"{StartMenuPath}\shell\open\command", null, command);
 
         // ProgID / URL class
         SetValue(ClassesPath, null, $"{AppName} URL");
         SetValue(ClassesPath, "URL Protocol", string.Empty);
         SetValue($@"{ClassesPath}\shell\open\command", null, command);
+
+        // ProgID / file class (for .html etc.)
+        SetValue(FileClassesPath, null, $"{AppName} Document");
+        SetValue($@"{FileClassesPath}\shell\open\command", null, command);
 
         // RegisteredApplications
         SetValue(RegisteredAppsPath, RegAppName,
@@ -51,6 +61,7 @@ public class ProtocolRegistrar
     {
         DeleteKey(StartMenuPath);
         DeleteKey(ClassesPath);
+        DeleteKey(FileClassesPath);
 
         using RegistryKey? regApps = Registry.CurrentUser.OpenSubKey(RegisteredAppsPath, writable: true);
         regApps?.DeleteValue(RegAppName, throwOnMissingValue: false);
