@@ -496,3 +496,5 @@ docs/no-faff-suite.md
 # Claude Code config
 .claude/
 CLAUDE.md
+HANDOFF.md
+/non-repo-files
